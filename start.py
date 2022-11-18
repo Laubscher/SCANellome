@@ -27,9 +27,17 @@ global minion
 
 minion = tk.IntVar(new, 0)  # 1 if Nanopore data 0 otherwise
 minion.set(0)
+
+pathData = os.path.expanduser("~/.AnV")
+if not os.path.exists(pathData):
+  os.mkdir(pathData)
+
+if not os.path.exists(pathData + "/USERDATA"):
+  os.mkdir(pathData + "/USERDATA")
+
 pathLastDir = "/home/florian/PycharmProjects/interface/"
 
-sampleUniq = set(listdir("USERDATA/")) #list of all "samples" from past session - for each sample one directory in USERDATA/
+sampleUniq = set(listdir(pathData + "/USERDATA/")) #list of all "samples" from past session - for each sample one directory in USERDATA/
 print(sampleUniq)
 
 workingRep = "/home/florian/PycharmProjects/interface/working"
@@ -52,9 +60,9 @@ pairedLabel = Label(new, text="(if paired)")
 text1Label = Label(new, text="Add a sample:")
 text2Label = Label(new, text="Sample list:")
 
-
 def select_file1():
     global fastq1Path
+    global pathLastDir
     filetypes = (
         ('Fastq files', '*.fastq'),
         ('All files', '*.*')
@@ -73,6 +81,9 @@ def select_file1():
     print(fastq1Path)
 
     fastq1.set(fastq1Path)
+    pathL = fastq1Path.split("/")
+    pathL.pop()
+    pathLastDir = "/".join(pathL)
 
     if fastq1Path.rstrip().split(".")[-1] == "fastq":
         fq1.config(bg="green", fg="white")
@@ -81,6 +92,7 @@ def select_file1():
 
 def select_file2():
     global fastq2Path
+    global pathLastDir
     filetypes = (
         ('Fastq files', '*.fastq'),
         ('All files', '*.*')
@@ -88,7 +100,7 @@ def select_file2():
 
     filename = fd.askopenfilename(
         title='Open a file',
-        initialdir='/',
+        initialdir=pathLastDir,
         filetypes=filetypes)
 
     showinfo(
@@ -98,6 +110,10 @@ def select_file2():
     fastq2Path = str(filename)
 
     fastq2.set(fastq2Path)
+
+    pathL = fastq2Path.split("/")
+    pathL.pop()
+    pathLastDir = "/".join(pathL)
 
     if fastq2Path.rstrip().split(".")[-1] == "fastq":
         fq2.config(bg="green", fg="white")
@@ -120,7 +136,7 @@ def add_sample():
         tk.messagebox.showinfo("Sorry can't add your sample..", "The file type is not fastq!")
 
     else:
-        os.mkdir("USERDATA/" + sampleName)
+        os.mkdir(pathData + "/USERDATA/" + sampleName)
         sample = [sampleName, fastq1Path, fastq2Path, yAdd + 20, minion.get()]
         sampleList.append(sample)
         labelListSample = Label(new, text=sampleName)
@@ -195,7 +211,6 @@ def mapping(pathToFastq, db, nameS, type="single"):
                   2))  # 4 % cov
         genome_ref_covered[l].append(median(genome_ref_covered[l][0]))  # 5 cov depth
 
-
     pb['value'] += 2
     new.update()
 
@@ -233,7 +248,7 @@ def mapping(pathToFastq, db, nameS, type="single"):
     pb['value'] += 2
     new.update()
 
-    fichierCSV = open("USERDATA/" + nameS + "/species.csv", "w")
+    fichierCSV = open(pathData + "/USERDATA/" + nameS + "/species.csv", "w")
     #Sample Name, ACC. NUMBER, Reads, ref_len, cov, %cov, depth (median), GENUS, GROUP, SPECIES, GENOTYPE, HOST
     for accResultSp in resultSp:
         fichierCSV.write(nameS + ", " + accResultSp + ", " + str(genome_ref_covered[accResultSp][1]) + ", " + str(genome_ref_covered[accResultSp][2]) + ", " + str(
@@ -249,7 +264,7 @@ def file_save():
     nameNewCsv = fd.asksaveasfile(mode='w',defaultextension=".csv")
     text2save="Sample Name, ACC. NUMBER, Reads, ref_len, cov, %cov, depth (median), GENUS, GROUP, SPECIES, GENOTYPE, HOST\n"
     for s in sampleList:
-        fichier = open("USERDATA/" + s[0] + "/species.csv", "r")
+        fichier = open(pathData + "/USERDATA/" + s[0] + "/species.csv", "r")
         for lane in fichier.read():
 
             text2save += lane
@@ -296,8 +311,6 @@ minion_check = ttk.Checkbutton(
     text="Oxford Nanopore",
     variable=minion
     )
-
-
 
 text1Label.place(x=5, y=15)
 open_button_fq1.place(x=5, y=40)
