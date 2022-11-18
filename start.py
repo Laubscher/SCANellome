@@ -23,7 +23,10 @@ global sampleUniq
 global yAdd
 global pathLastDir
 global pb
+global minion
 
+minion = tk.IntVar(new, 0)  # 1 if Nanopore data 0 otherwise
+minion.set(0)
 pathLastDir = "/home/florian/PycharmProjects/interface/"
 
 sampleUniq = set(listdir("USERDATA/")) #list of all "samples" from past session - for each sample one directory in USERDATA/
@@ -118,13 +121,13 @@ def add_sample():
 
     else:
         os.mkdir("USERDATA/" + sampleName)
-        sample = [sampleName, fastq1Path, fastq2Path, yAdd + 20]
+        sample = [sampleName, fastq1Path, fastq2Path, yAdd + 20, minion.get()]
         sampleList.append(sample)
         labelListSample = Label(new, text=sampleName)
         yAdd += 20
         labelListSample.place(x=5, y=yAdd)
         sampleUniq.add(sampleName)
-
+    print(minion.get())
     fastq1.set("<empty-mandatory>")
     fq1.config(bg="red", fg="black")
     fastq2.set("<empty>")
@@ -149,13 +152,17 @@ def run():
     save_button.place(x=200, y=120)
 
 
-def mapping(pathToFastq, db, nameS):
+def mapping(pathToFastq, db, nameS, type="single"):
     global pb
 
     genome_ref_covered = dict()
     genome_ref_class = dict()  # key acc number; value list of info from the fasta header
-
-    a = mp.Aligner(db)
+    preset = None
+    if type == "Nanopore":
+        preset = "map-ont"     # for Oxford Nanopore read mapping
+    elif type== "single":
+        preset ="sr"           # single-end short reads
+    a = mp.Aligner(db, preset=preset)
 
     pb['value'] += 1
     new.update()
@@ -282,6 +289,16 @@ save_button = ttk.Button(
     command=file_save
 )
 
+#checkbox
+
+minion_check = ttk.Checkbutton(
+    new,
+    text="Oxford Nanopore",
+    variable=minion
+    )
+
+
+
 text1Label.place(x=5, y=15)
 open_button_fq1.place(x=5, y=40)
 fq1.place(x=230, y=45)
@@ -291,6 +308,7 @@ pairedLabel.place(x=150, y=75)
 add_sample_button.place(x=5, y=120)
 run_button.place(x=100, y=120)
 text2Label.place(x=5, y=145)
+minion_check.place(x=230, y=15)
 
 # run the application
 
