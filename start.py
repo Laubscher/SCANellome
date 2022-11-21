@@ -8,6 +8,7 @@ from tkinter import ttk
 from tkinter import filedialog as fd
 from tkinter.messagebox import showinfo
 from tkinter import *
+import Dicodb
 new = tk.Tk()
 new.title('Anelloviruses')
 new.geometry("800x500")
@@ -35,12 +36,21 @@ if not os.path.exists(pathData):
 if not os.path.exists(pathData + "/USERDATA"):
   os.mkdir(pathData + "/USERDATA")
 
-pathLastDir = "/home/florian/PycharmProjects/interface/"
+pathLastDir = pathData + "/test"
 
-sampleUniq = set(listdir(pathData + "/USERDATA/")) #list of all "samples" from past session - for each sample one directory in USERDATA/
+sampleUniq = set(listdir(pathData + "/USERDATA/")) # list of all "samples" from past session - for each sample one directory in USERDATA/
 print(sampleUniq)
 
-workingRep = "/home/florian/PycharmProjects/interface/working"
+#make the fasta db
+
+if not os.path.exists(pathData + "/DATABASE"):
+  os.mkdir(pathData + "/DATABASE")
+  fasta=open(pathData + "/DATABASE/Anello.fasta", "w")
+  for entry in Dicodb.db:
+    if entry != "none":
+      fasta.write(">"+entry+"\n")
+      fasta.write(Dicodb.db[entry][5]+"\n")
+  fasta.close()
 
 yAdd = 150
 sampleList = []
@@ -160,19 +170,18 @@ def run():
         curr = time.time()
         pb['value'] += 1
         new.update()
-        mapping(s[1], "testdb/Anellovirus_2022.0.fasta", s[0])
+        mapping(s[1], pathData + "/DATABASE/Anello.fasta", s[0])
         pb['value'] += 1
         new.update()
 
         print(time.time() - curr)
     save_button.place(x=200, y=120)
 
-
 def mapping(pathToFastq, db, nameS, type="single"):
     global pb
 
     genome_ref_covered = dict()
-    genome_ref_class = dict()  # key acc number; value list of info from the fasta header
+    genome_ref_class = Dicodb.db                                    # key acc number; value list of info from the fasta header
     preset = None
     if type == "Nanopore":
         preset = "map-ont"     # for Oxford Nanopore read mapping
@@ -193,10 +202,12 @@ def mapping(pathToFastq, db, nameS, type="single"):
                                              hit.ctg_len]  # list [0] -> depth for each pos (incrementation), [2] lenref, [1] count of reads (incrementation)
                 for k in range(0, hit.ctg_len):
                     genome_ref_covered[mgRef][0].append(0) # populate depth with 0
+
+
                 # info classification in a separated dict.
-                genome_ref_class[mgRef] = [hit.ctg.split(",")[1], hit.ctg.split(",")[2], hit.ctg.split(",")[3],
+                '''genome_ref_class[mgRef] = [hit.ctg.split(",")[1], hit.ctg.split(",")[2], hit.ctg.split(",")[3],
                                            hit.ctg.split(",")[4], hit.ctg.split(",")[5]]
-                                                 #TODO keep only acc Number in fasta db make a correspendence table
+                                                 #TODO keep only acc Number in fasta db make a correspendence table'''
 
             genome_ref_covered[mgRef][1] += 1
             for i in range(hit.r_st, hit.r_en):             # r_st  = ref start match, r_en -> end
