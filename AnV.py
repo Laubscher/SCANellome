@@ -330,10 +330,22 @@ def file_save():
     nameNewCsv.write(text2save)
     nameNewCsv.close
 
-def resetA():
+def deleteA():
+    #TODO add a confirmation window
     global sampleUniq
     sampleUniq = []
     shutil.rmtree(pathData)
+    start()
+    for widgets in main.winfo_children():
+        widgets.destroy()
+    topButton()
+
+def resetA():
+    global sampleList
+    global sampleUniq
+    for sample in sampleList:
+        os.rmdir(pathData + "/USERDATA/" + str(sample[0]))
+    sampleUniq = []
     start()
     for widgets in main.winfo_children():
         widgets.destroy()
@@ -356,7 +368,6 @@ def analyse():
     global text2Label
     global minion
     global pathData
-
     global minion
 
     minion = tk.IntVar(main, 0)  # 1 if Nanopore data 0 otherwise         # The check mark box
@@ -426,9 +437,15 @@ def analyse():
 # button
 
 def topButton():
+  delete_button = ttk.Button(
+    main,
+    text='Delete all data',
+    command=deleteA
+  )
+
   reset_button = ttk.Button(
     main,
-    text='reset',
+    text='Reset',
     command=resetA
   )
 
@@ -438,8 +455,9 @@ def topButton():
     command=analyse
   )
 
-  reset_button.place(x=670, y=-5)           #reset
-  analyse_button.place(x=-5, y=-5)          #analyze
+  delete_button.place(x=625, y=-5)           #delete all data
+  analyse_button.place(x=-5, y=-5)           #analyze
+  reset_button.place(x=125, y=-5)             #reset
 
 # run the application
 
