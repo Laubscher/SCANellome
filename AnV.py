@@ -36,7 +36,7 @@ global pathLastDir
 global pb
 global minion
 
-minion = tk.IntVar(new, 0)  # 1 if Nanopore data 0 otherwise          # The check mark box
+minion = tk.IntVar(new, 0)   # 1 if Nanopore data 0 otherwise         # The check mark box
 minion.set(0)
 
 pathData = os.path.expanduser("~/.AnV")                               # check if .AnV otherwise mk it
