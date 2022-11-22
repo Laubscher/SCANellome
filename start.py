@@ -33,15 +33,41 @@ pathData = os.path.expanduser("~/.AnV")
 if not os.path.exists(pathData):
   os.mkdir(pathData)
 
+#####################################
+#               log                 #
+#####################################
+
+if not os.path.exists(pathData + "/LOG"):
+    os.mkdir(pathData + "/LOG")
+    log = open(pathData + "/LOG/log.txt", "w")
+    firstSessionTime = time.time()
+    log.write("First session start: " + str(firstSessionTime) + "\n")
+    log.close()
+
+
+
+log = open(pathData + "/LOG/log.txt", "a")
+sessionTime = time.time()
+
+log.write("\nSession start: " + str(sessionTime) +"\n")
+    #log.close()
+#####################################
+
 if not os.path.exists(pathData + "/USERDATA"):
   os.mkdir(pathData + "/USERDATA")
+  log.write("USERDATA set up" + "\n")
 
-pathLastDir = pathData + "/test"
+pathLastDir = os.path.expanduser("~")
 
 sampleUniq = set(listdir(pathData + "/USERDATA/")) # list of all "samples" from past session - for each sample one directory in USERDATA/
-print(sampleUniq)
 
-#make the fasta db
+log.write("List of samples found in USERDATA/: " + str(sampleUniq) + "\n")
+
+#####################################
+#                db                 #
+#####################################
+#make the fasta db from module Dicodb
+#####################################
 
 if not os.path.exists(pathData + "/DATABASE"):
   os.mkdir(pathData + "/DATABASE")
@@ -51,6 +77,9 @@ if not os.path.exists(pathData + "/DATABASE"):
       fasta.write(">"+entry+"\n")
       fasta.write(Dicodb.db[entry][5]+"\n")
   fasta.close()
+  log.write("DATABASE set up" + "\n")
+#####################################
+log.close()
 
 yAdd = 150
 sampleList = []
@@ -161,21 +190,32 @@ def add_sample():
 
 def run():
     global pb
-    print(sampleList)
+    log = open(pathData + "/LOG/log.txt", "a")
+    log.write("Sample list for mapping: " + str(sampleList) + "\n")
+
 
     for s in sampleList:
         pb = ttk.Progressbar(new, orient='horizontal', mode='determinate', length=280)  # Progress bar
         pb.place(x=350, y=s[3])
         new.update()
-        curr = time.time()
         pb['value'] += 1
         new.update()
-        mapping(s[1], pathData + "/DATABASE/Anello.fasta", s[0])
-        pb['value'] += 1
-        new.update()
+        try:
+          curr = time.time()
+          mapping(s[1], pathData + "/DATABASE/Anello.fasta", s[0])
 
-        print(time.time() - curr)
+        except:
+          log.write("Error during mapping.. sample:" + str(s[0]) + "\n files may be corrupted!" + "\n")
+          tk.messagebox.showinfo("Error..", "Error during mapping.. sample:" + str(s[0]) + "\n files may be corrupted!")
+        else:
+          pb['value'] += 1
+          new.update()
+          log.write("Mapping time sample:" + str(s[0]) + " " + str(time.time() - curr) + "\n")
+
     save_button.place(x=200, y=120)
+
+    log.close()
+
 
 def mapping(pathToFastq, db, nameS, type="single"):
     global pb
@@ -335,5 +375,4 @@ text2Label.place(x=5, y=145)
 minion_check.place(x=230, y=15)
 
 # run the application
-
 new.mainloop()
