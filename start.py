@@ -41,16 +41,15 @@ if not os.path.exists(pathData + "/LOG"):
     os.mkdir(pathData + "/LOG")
     log = open(pathData + "/LOG/log.txt", "w")
     firstSessionTime = time.time()
-    log.write("First session start: " + str(firstSessionTime) + "\n")
+    log.write("Set up first session: " + str(firstSessionTime) + "\n")
     log.close()
-
 
 
 log = open(pathData + "/LOG/log.txt", "a")
 sessionTime = time.time()
 
 log.write("\nSession start: " + str(sessionTime) +"\n")
-    #log.close()
+
 #####################################
 
 if not os.path.exists(pathData + "/USERDATA"):
@@ -191,10 +190,11 @@ def add_sample():
 def run():
     global pb
     log = open(pathData + "/LOG/log.txt", "a")
-    log.write("Sample list for mapping: " + str(sampleList) + "\n")
+    log.write("Start mapping samples ... " + "\n")
 
 
     for s in sampleList:
+        log.write("Mapping sample: " + str(s[0]) + "\n")
         pb = ttk.Progressbar(new, orient='horizontal', mode='determinate', length=280)  # Progress bar
         pb.place(x=350, y=s[3])
         new.update()
@@ -210,7 +210,7 @@ def run():
         else:
           pb['value'] += 1
           new.update()
-          log.write("Mapping time sample:" + str(s[0]) + " " + str(time.time() - curr) + "\n")
+          log.write("Mapping time sample: " + str(s[0]) + " " + str(time.time() - curr) + "\n")
 
     save_button.place(x=200, y=120)
 
@@ -315,12 +315,13 @@ def file_save():
     nameNewCsv = fd.asksaveasfile(mode='w',defaultextension=".csv")
     text2save="Sample Name, ACC. NUMBER, Reads, ref_len, cov, %cov, depth (median), GENUS, GROUP, SPECIES, GENOTYPE, HOST\n"
     for s in sampleList:
-        fichier = open(pathData + "/USERDATA/" + s[0] + "/species.csv", "r")
-        for lane in fichier.read():
-
-            text2save += lane
-        fichier.close()
-
+        try:
+            fichier = open(pathData + "/USERDATA/" + s[0] + "/species.csv", "r")    # if error during mapping file will not existe
+            for lane in fichier.read():
+              text2save += lane
+            fichier.close()
+        except:
+         pass
     nameNewCsv.write(text2save)
     nameNewCsv.close
 
