@@ -44,7 +44,6 @@ def start():
   global minion
   global pathData
 
-
   pathData = os.path.expanduser("~/.AnV")                               # check if .AnV otherwise mk it
   if not os.path.exists(pathData):
     os.mkdir(pathData)
@@ -101,9 +100,8 @@ def start():
 
   log.close()
 
-  yAdd = 200
-  sampleList = []
 
+  sampleList = []
 
 
 def select_file1():
@@ -214,8 +212,8 @@ def run():
         except:
           log.write("Error during mapping.. sample:" + str(s[0]) + "\n files may be corrupted!" + "\n")
           tk.messagebox.showinfo("Error..", "Error during mapping.. sample:" + str(s[0]) + "\n files may be corrupted!")
-
           pb['value'] = 0
+
         else:
           pb['value'] += 1
           main.update()
@@ -227,7 +225,7 @@ def run():
         command=file_save
     )
     save_button.place(x=290, y=155)
-
+    tk.messagebox.showinfo("Analysis completed", "Analysis completed" + "\n")
     log.close()
 
 def mapping(pathToFastq, db, nameS, type="single"):
@@ -341,8 +339,6 @@ def resetA():
         widgets.destroy()
     topButton()
 
-
-
 def analyse():
 
     global fastq1Path
@@ -361,14 +357,12 @@ def analyse():
     global minion
     global pathData
 
-
-
-
     global minion
 
     minion = tk.IntVar(main, 0)  # 1 if Nanopore data 0 otherwise         # The check mark box
     minion.set(0)
 
+    yAdd = 200
     open_button_fq1 = ttk.Button(
         main,
         text='Select Fastq File 1',
@@ -392,8 +386,6 @@ def analyse():
         text='Run',
         command=run
     )
-
-
 
     # checkbox
 
