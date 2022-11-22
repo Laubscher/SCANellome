@@ -1,17 +1,27 @@
-import os
+#!/usr/bin/env python3
+
+# Import modules - dependencies
+import os                                 # system
 import time
 from os import listdir
-import mappy as mp
+import mappy as mp                        # mapper
 from statistics import median
-import tkinter as tk
+import tkinter as tk                      # graphic interface
 from tkinter import ttk
 from tkinter import filedialog as fd
 from tkinter.messagebox import showinfo
 from tkinter import *
-import Dicodb
+import Dicodb                             # module that contain the database in a python dico
+
+
+# The software window
+
 new = tk.Tk()
 new.title('Anelloviruses')
 new.geometry("800x500")
+
+#Variables
+
 global workingRep
 global fastq1Path
 global fastq2Path
@@ -26,10 +36,10 @@ global pathLastDir
 global pb
 global minion
 
-minion = tk.IntVar(new, 0)  # 1 if Nanopore data 0 otherwise
+minion = tk.IntVar(new, 0)  # 1 if Nanopore data 0 otherwise          # The check mark box
 minion.set(0)
 
-pathData = os.path.expanduser("~/.AnV")
+pathData = os.path.expanduser("~/.AnV")                               # check if .AnV otherwise mk it
 if not os.path.exists(pathData):
   os.mkdir(pathData)
 
@@ -52,18 +62,22 @@ log.write("\nSession start: " + str(sessionTime) +"\n")
 
 #####################################
 
+#####################################
+#             USERDATA              #
+#####################################
+
 if not os.path.exists(pathData + "/USERDATA"):
   os.mkdir(pathData + "/USERDATA")
   log.write("USERDATA set up" + "\n")
 
 pathLastDir = os.path.expanduser("~")
 
-sampleUniq = set(listdir(pathData + "/USERDATA/")) # list of all "samples" from past session - for each sample one directory in USERDATA/
+sampleUniq = set(listdir(pathData + "/USERDATA/"))     # list of all "samples" from past session - for each sample one directory in USERDATA/
 
 log.write("List of samples found in USERDATA/: " + str(sampleUniq) + "\n")
 
 #####################################
-#                db                 #
+#               db                  #
 #####################################
 #make the fasta db from module Dicodb
 #####################################
