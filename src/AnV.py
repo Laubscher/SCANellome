@@ -21,7 +21,7 @@ from ttkthemes import ThemedTk
 #main = tk.Tk()
 main = ThemedTk(theme="ubuntu", background=True)
 
-main.title('AnV')
+main.title('                                                                      AnV                                                                         v. 0.0.1')
 main.geometry("800x500")
 
 global pb
@@ -351,6 +351,16 @@ def resetA():
         widgets.destroy()
     topButton()
 
+def dataA():
+
+    global sampleUniq # list of all directory one by sample in USERDATA
+    start()
+    for widgets in main.winfo_children():
+        widgets.destroy()
+    topButton()
+
+    for sample in sampleUniq
+
 def analyse():
 
     global fastq1Path
@@ -455,9 +465,17 @@ def topButton():
     command=analyse
   )
 
+  data_button = ttk.Button(
+    main,
+    text='Data',
+    command=dataA
+  )
+
   delete_button.place(x=625, y=-5)           #delete all data
   analyse_button.place(x=-5, y=-5)           #analyze
-  reset_button.place(x=125, y=-5)             #reset
+  reset_button.place(x=125, y=-5)            #reset
+  data_button.place(x=500, y=-5)             #data
+
 
 # run the application
 
