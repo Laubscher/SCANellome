@@ -35,7 +35,6 @@ def start():
   global fq1
   global fq2
   global sampleList
-  global sampleUniq
   global yAdd
   global pathLastDir
   global pairedLabel
@@ -43,6 +42,7 @@ def start():
   global text2Label
   global minion
   global pathData
+  global projectList
 
   pathData = os.path.expanduser("~/.AnV")                               # check if .AnV otherwise mk it
   if not os.path.exists(pathData):
@@ -59,7 +59,6 @@ def start():
     log.write("Set up first session: " + str(firstSessionTime) + "\n")
     log.close()
 
-
   log = open(pathData + "/LOG/log.txt", "a")
   sessionTime = time.time()
 
@@ -73,13 +72,14 @@ def start():
 
   if not os.path.exists(pathData + "/USERDATA"):
     os.mkdir(pathData + "/USERDATA")
+    os.mkdir(pathData + "/USERDATA/default")
     log.write("USERDATA set up" + "\n")
 
   pathLastDir = os.path.expanduser("~")
+  projectList = listdir(pathData + "/USERDATA/")  # list of all "project" from past session - for each project one directory in USERDATA/
+  #sampleUniq = set(listdir(pathData + "/USERDATA/"))
 
-  sampleUniq = set(listdir(pathData + "/USERDATA/"))     # list of all "samples" from past session - for each sample one directory in USERDATA/
-
-  log.write("List of samples found in USERDATA/: " + str(sampleUniq) + "\n")
+  log.write("List of project found in USERDATA/: " + str(projectList) + "\n")
 
   #####################################
   #               db                  #
@@ -179,7 +179,7 @@ def add_sample():
         tk.messagebox.showinfo("Sorry can't add your sample..", "The file type is not fastq!")
 
     else:
-        os.mkdir(pathData + "/USERDATA/" + sampleName)
+        os.mkdir(pathData + "/USERDATA/" + projectSelected + "/" + sampleName)
         sample = [sampleName, fastq1Path, fastq2Path, yAdd + 20, minion.get()]
         sampleList.append(sample)
         labelListSample = ttk.Label(main, text=sampleName)
@@ -304,7 +304,7 @@ def mapping(pathToFastq, db, nameS, type="single"):
     pb['value'] += 2
     main.update()
 
-    fichierCSV = open(pathData + "/USERDATA/" + nameS + "/species.csv", "w")
+    fichierCSV = open(pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/species.csv", "w")
     #Sample Name, ACC. NUMBER, Reads, ref_len, cov, %cov, depth (median), GENUS, GROUP, SPECIES, GENOTYPE, HOST
     for accResultSp in resultSp:
         fichierCSV.write(nameS + ", " + accResultSp + ", " + str(genome_ref_covered[accResultSp][1]) + ", " + str(genome_ref_covered[accResultSp][2]) + ", " + str(
@@ -321,7 +321,7 @@ def file_save():
     text2save="Sample Name, ACC. NUMBER, Reads, ref_len, cov, %cov, depth (median), GENUS, GROUP, SPECIES, GENOTYPE, HOST\n"
     for s in sampleList:
         try:
-            fichier = open(pathData + "/USERDATA/" + s[0] + "/species.csv", "r")    # if error during mapping file will not existe
+            fichier = open(pathData + "/USERDATA/"+ projectSelected + "/" + s[0] + "/species.csv", "r")    # if error during mapping file will not existe
             for lane in fichier.read():
               text2save += lane
             fichier.close()
@@ -344,7 +344,7 @@ def resetA():
     global sampleList
     global sampleUniq
     for sample in sampleList:
-        os.rmdir(pathData + "/USERDATA/" + str(sample[0]))
+        os.rmdir(pathData + "/USERDATA/" + projectSelected + "/" + str(sample[0]))
     sampleUniq = []
     start()
     for widgets in main.winfo_children():
@@ -352,14 +352,36 @@ def resetA():
     topButton()
 
 def dataA():
-
-    global sampleUniq # list of all directory one by sample in USERDATA
+    global projectList
+    #global sampleUniq # list of all directory one by sample in USERDATA
     start()
     for widgets in main.winfo_children():
         widgets.destroy()
     topButton()
 
-    for sample in sampleUniq
+    projectSelected = cb1.get()
+
+def default():
+
+    global projectSelected
+    global projectList
+    global cb1
+
+    for widgets in main.winfo_children():
+        widgets.destroy()
+    topButton()
+    start()
+
+    text3Label = ttk.Label(main, text="Select a project:")
+
+    text3Label.place(x=10, y=45)          # Add a sample
+
+    cb1 = ttk.Combobox(main, values=projectList)#, width=7)
+    cb1.place(x=170, y=45)
+
+    projectSelected = cb1.get().split("'")[-1]
+    print(projectSelected)
+
 
 def analyse():
 
@@ -370,6 +392,7 @@ def analyse():
     global fq1
     global fq2
     global sampleList
+    global projectSelected
     global sampleUniq
     global yAdd
     global pathLastDir
@@ -378,12 +401,27 @@ def analyse():
     global text2Label
     global minion
     global pathData
-    global minion
+
+    projectSelected = cb1.get()
+    # test if project exist otherwise mk directory
+
+    if not os.path.exists(pathData + "/USERDATA/" + projectSelected):
+        os.mkdir(pathData + "/USERDATA/" + projectSelected)
+        log = open(pathData + "/LOG/log.txt", "a")
+        log.write("Project: USERDATA/" + projectSelected + "added" + "\n")
+        log.close()
+
+    for widgets in main.winfo_children():
+        widgets.destroy()
+    topButton()
 
     minion = tk.IntVar(main, 0)  # 1 if Nanopore data 0 otherwise         # The check mark box
     minion.set(0)
 
     yAdd = 200
+
+    sampleUniq = set(listdir(pathData + "/USERDATA/" + projectSelected + "/"))
+
     open_button_fq1 = ttk.Button(
         main,
         text='Select Fastq File 1',
@@ -443,7 +481,6 @@ def analyse():
     text2Label.place(x=10, y=200)         #
     minion_check.place(x=330, y=50)       # Oxford Nanopore
 
-
 # button
 
 def topButton():
@@ -471,14 +508,26 @@ def topButton():
     command=dataA
   )
 
+
+  project_button = ttk.Button(
+    main,
+    text='Project selection',
+    command=default
+  )
+
   delete_button.place(x=625, y=-5)           #delete all data
   analyse_button.place(x=-5, y=-5)           #analyze
   reset_button.place(x=125, y=-5)            #reset
   data_button.place(x=500, y=-5)             #data
+  project_button.place(x=260, y=-5)             #data
 
 
 # run the application
 
-topButton()
-start()
+
+
+#topButton()
+#start()
+default()
+
 main.mainloop()
