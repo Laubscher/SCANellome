@@ -13,7 +13,8 @@ from tkinter import filedialog as fd
 from tkinter.messagebox import showinfo
 #from tkinter import *
 import Dicodb                             # module that contain the database in a python dico
-
+import base64
+import img
 from ttkthemes import ThemedTk
 
 # The software window
@@ -23,6 +24,11 @@ main = ThemedTk(theme="ubuntu", background=True)
 
 main.title('                                                                      AnV                                                                         v. 0.0.1')
 main.geometry("800x500")
+
+
+
+
+
 
 global pb
 
@@ -48,6 +54,22 @@ def start():
   if not os.path.exists(pathData):
     os.mkdir(pathData)
 
+  #####################################
+  #               img                 #
+  #####################################
+
+
+  if not os.path.exists(pathData + "/IMG"):
+    os.mkdir(pathData + "/IMG")
+    image = open(pathData + "/IMG/blue.png", 'wb')
+    image.write(base64.b64decode((img.img)))
+    image.close()
+
+  try:
+      icon = tk.PhotoImage(file = pathData + "/IMG/blue.png")
+      main.iconphoto(False, icon)
+  except:
+      pass
   #####################################
   #               log                 #
   #####################################
