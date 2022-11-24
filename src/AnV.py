@@ -119,7 +119,65 @@ def start():
 
   sampleList = []
 
+######################### batch ##################################################
+def select_file_batch():
+    global pathLastDir
 
+    filetypes = (
+        ('Fastq files', '*.fastq'),
+        ('All files', '*.*')
+    )
+    filenames = fd.askopenfilenames(
+        title='select fastq',
+        initialdir=pathLastDir,
+        filetypes=filetypes)
+
+    for path in filenames:
+        fastq1Path=str(path)
+        fastq1.set(fastq1Path)
+        if fastq1Path.rstrip().split(".")[-1] == "fastq":           #delete this ?
+            fq1.config(background="darkorange1", foreground="white")
+        else:
+            fq1.config(background="yellow", foreground="black")
+        add_sample_batch(fastq1Path)
+
+    pathL = fastq1Path.split("/")         #for remember the path of the directory
+    pathL.pop()
+    pathLastDir = "/".join(pathL)
+
+def add_sample_batch(fastq1Path):
+    global yAdd
+    global sampleList
+    fastq2Path = "<empty>"  # Todo add it if R2 found (and /or check box)
+    sampleName = fastq1Path.split("/")[-1].split(".fastq")[0]
+    # check if sample name is uniq
+    suffix  = fastq1Path.split(".")[-1]
+    # check if fastq
+
+    if sampleName in sampleUniq:
+        print("Sample name not uniq!!")
+        tk.messagebox.showinfo("Sorry can't add your sample..", sampleName + "/nThe sample name is not uniq!")
+
+    elif suffix != "fastq":
+        print("Sample suffix is not fastq!!")
+        tk.messagebox.showinfo("Sorry can't add your sample..", suffix + "/nThe file type is not fastq!")
+
+    else:
+        os.mkdir(pathData + "/USERDATA/" + projectSelected + "/" + sampleName)
+        sample = [sampleName, fastq1Path, fastq2Path, yAdd + 20, minion.get()]
+        sampleList.append(sample)
+        labelListSample = ttk.Label(main, text=sampleName)
+        yAdd += 20
+        labelListSample.place(x=10, y=yAdd)
+        sampleUniq.add(sampleName)
+    print(minion.get())
+    fastq1.set("<empty-mandatory>")
+    fq1.config(background="gray", foreground="black")
+    fastq2.set("<empty>")
+    fq2.config(background="yellow", foreground="black")
+    print(sampleList)
+
+############################ one by one ###############################################################################
 def select_file1():
     global fastq1Path
     global pathLastDir
@@ -199,7 +257,7 @@ def add_sample():
     fq1.config(background="gray", foreground="black")
     fastq2.set("<empty>")
     fq2.config(background="yellow", foreground="black")
-
+#######################################################################################################################
 def run():
     global pb
     global main
@@ -207,6 +265,7 @@ def run():
     log.write("Start mapping samples ... " + "\n")
 
     for s in sampleList:   #sample = [sampleName, fastq1Path, fastq2Path, yAdd + 20, minion.get()]
+        print("")
         log.write("Mapping sample: " + str(s[0]) + "\n")
         pb = ttk.Progressbar(main, orient='horizontal', mode='determinate', length=280)  # Progress bar
         pb.place(x=350, y=s[3])
@@ -224,7 +283,7 @@ def run():
           else:
               type="Single"
               print("single")
-          mapping(s[1], pathData + "/DATABASE/Anello.fasta", s[0], type, fastq2Path)
+          mapping(s[1], pathData + "/DATABASE/Anello.fasta", s[0], type, s[3])
 
         except:
           log.write("Error during mapping.. sample:" + str(s[0]) + "\n files may be corrupted!" + "\n")
@@ -526,6 +585,107 @@ def analyse():
     text2Label.place(x=10, y=200)         #
     minion_check.place(x=330, y=50)       # Oxford Nanopore
 
+
+######################################################################################################################
+
+def analyse_batch():
+
+    global fastq1Path
+    global fastq1
+    global fastq2
+    global fq1
+    global fq2
+    global sampleList
+    global projectSelected
+    global sampleUniq
+    global yAdd
+    global pathLastDir
+    global pairedLabel
+    global text1Label
+    global text2Label
+    global minion
+    global pathData
+
+    projectSelected = cb1.get()
+    # test if project exist otherwise mk directory
+
+    if not os.path.exists(pathData + "/USERDATA/" + projectSelected):
+        os.mkdir(pathData + "/USERDATA/" + projectSelected)
+        log = open(pathData + "/LOG/log.txt", "a")
+        log.write("Project: USERDATA/" + projectSelected + "added" + "\n")
+        log.close()
+
+    for widgets in main.winfo_children():
+        widgets.destroy()
+    topButton()
+
+    minion = tk.IntVar(main, 0)  # 1 if Nanopore data 0 otherwise         # The check mark box
+    minion.set(0)
+
+    yAdd = 200
+
+    sampleUniq = set(listdir(pathData + "/USERDATA/" + projectSelected + "/"))
+
+    open_button = ttk.Button(
+        main,
+        text='Select Fastq File 1',
+        command=select_file_batch
+    )
+
+    open_button_fq2 = ttk.Button(
+        main,
+        text='Select Fastq File 2',
+        command=select_file2
+    )
+
+    add_sample_button = ttk.Button(
+        main,
+        text='Add',
+        command=add_sample
+    )
+
+    run_button = ttk.Button(
+        main,
+        text='Run',
+        command=run
+    )
+
+    # checkbox
+
+    minion_check = ttk.Checkbutton(
+        main,
+        text="Oxford Nanopore",
+        variable=minion
+    )
+    fastq1Path = "<empty-mandatory>"
+    fastq2Path = "<empty>"
+
+    fastq1 = tk.StringVar()
+    fastq2 = tk.StringVar()
+
+    fastq1.set(fastq1Path)
+    fastq2.set(fastq2Path)
+
+    fq1 = ttk.Label(main, textvariable=fastq1, background="gray", foreground="black", relief="ridge")
+    fq2 = ttk.Label(main, textvariable=fastq2, background="yellow", foreground="black", relief="ridge")
+
+    pairedLabel = ttk.Label(main, text="(if paired)")
+
+    text1Label = ttk.Label(main, text="Add a sample:")
+    text2Label = ttk.Label(main, text="Sample list:")
+
+    text1Label.place(x=10, y=45)          # Add a sample
+    open_button.place(x=10, y=70)         #
+    fq1.place(x=330, y=75)                #
+    fq2.place(x=330, y=110)               #
+    pairedLabel.place(x=220, y=110)       #
+    add_sample_button.place(x=10, y=155)  #
+    run_button.place(x=150, y=155)        #
+    text2Label.place(x=10, y=200)         #
+    minion_check.place(x=330, y=50)       # Oxford Nanopore
+#######################################################################################################################
+
+
 # button
 
 def topButton():
@@ -544,7 +704,7 @@ def topButton():
   analyse_button = ttk.Button(
     main,
     text='Analysis',
-    command=analyse
+    command=analyse_batch
   )
 
   data_button = ttk.Button(
