@@ -18,17 +18,11 @@ import img
 from ttkthemes import ThemedTk
 
 # The software window
-
 #main = tk.Tk()
 main = ThemedTk(theme="ubuntu", background=True)
 
 main.title('                                                                      AnV                                                                         v. 0.0.1')
 main.geometry("800x500")
-
-
-
-
-
 
 global pb
 
@@ -138,11 +132,6 @@ def select_file1():
         initialdir=pathLastDir,
         filetypes=filetypes)
 
-    showinfo(
-        title='Selected File',
-        message=filename
-    )
-
     fastq1Path = str(filename)
     print(fastq1Path)
 
@@ -163,15 +152,12 @@ def select_file2():
         ('Fastq files', '*.fastq'),
         ('All files', '*.*')
     )
+
     filename = fd.askopenfilename(
         title='Open a file',
         initialdir=pathLastDir,
         filetypes=filetypes)
 
-    showinfo(
-        title='Selected File',
-        message=filename
-    )
     fastq2Path = str(filename)
 
     fastq2.set(fastq2Path)
@@ -220,7 +206,7 @@ def run():
     log = open(pathData + "/LOG/log.txt", "a")
     log.write("Start mapping samples ... " + "\n")
 
-    for s in sampleList:
+    for s in sampleList:   #sample = [sampleName, fastq1Path, fastq2Path, yAdd + 20, minion.get()]
         log.write("Mapping sample: " + str(s[0]) + "\n")
         pb = ttk.Progressbar(main, orient='horizontal', mode='determinate', length=280)  # Progress bar
         pb.place(x=350, y=s[3])
@@ -229,7 +215,16 @@ def run():
         main.update()
         try:
           curr = time.time()
-          mapping(s[1], pathData + "/DATABASE/Anello.fasta", s[0])
+          if s[4] == 1:
+              type="Nanopore"
+              print("Nanopore")
+          elif s[2] != "<empty>":
+              type = "Paired"
+              print("P-aired")
+          else:
+              type="Single"
+              print("single")
+          mapping(s[1], pathData + "/DATABASE/Anello.fasta", s[0], type, fastq2Path)
 
         except:
           log.write("Error during mapping.. sample:" + str(s[0]) + "\n files may be corrupted!" + "\n")
@@ -250,22 +245,10 @@ def run():
     tk.messagebox.showinfo("Analysis completed", "Analysis completed" + "\n")
     log.close()
 
-def mapping(pathToFastq, db, nameS, type="single"):
-    global pb
-
-    genome_ref_covered = dict()
-    genome_ref_class = Dicodb.db                                    # key acc number; value list of info from the fasta header
-    preset = None
-    if type == "Nanopore":
-        preset = "map-ont"     # for Oxford Nanopore read mapping
-    elif type == "single":
-        preset = "sr"           # single-end short reads
-    a = mp.Aligner(db, preset=preset)
-
-    pb['value'] += 1
-    main.update()
-
-    for name, seq, qual in mp.fastx_read(pathToFastq):
+def map1Fastq(pathToFastq, genome_ref_covered, a):
+      print("map1")
+      generator = mp.fastx_read(pathToFastq)
+      for name, seq, qual in generator:
         for hit in a.map(seq):
             mgRef = hit.ctg.split(",")[0]                  #if not in dico make a new entry
             if mgRef in genome_ref_covered:
@@ -279,11 +262,52 @@ def mapping(pathToFastq, db, nameS, type="single"):
             genome_ref_covered[mgRef][1] += 1
             for i in range(hit.r_st, hit.r_en):             # r_st  = ref start match, r_en -> end
                 genome_ref_covered[mgRef][0][i] += 1
-    pb['value'] += 88
+
+def mapping(pathToFastq, db, nameS, type, pathToFastq2):
+    global pb
+    genome_ref_covered = dict()
+    genome_ref_class = Dicodb.db                                    # key acc number; value list of info from the fasta header
+    if type == "Nanopore":
+        preset = "map-ont"     # for Oxford Nanopore read mapping
+        a = mp.Aligner(db, preset=preset)
+    elif type == "single":
+        preset = "sr"           # single-end short reads
+        a = mp.Aligner(db, preset=preset)
+    else:
+        a = mp.Aligner(db)
+    print(a)
+    pb['value'] += 2
     main.update()
 
+    print(type)
+
+    if type == "Paired":
+      print("map")
+
+      #fastq1
+      map1Fastq(pathToFastq, genome_ref_covered, a)
+
+      pb['value'] += 40
+      main.update()
+
+      #fastq2
+      map1Fastq(pathToFastq2, genome_ref_covered, a)
+
+
+    else:
+      map1Fastq(pathToFastq, genome_ref_covered, a)
+
+
+      pb['value'] += 40
+      main.update()
+
+    pb['value'] += 58
+    main.update()
+
+    #for each genome with match -> compute metrics
+
     for l in genome_ref_covered:
-        genome_ref_covered[l].append(genome_ref_covered[l][2] - genome_ref_covered[l][0].count(0))  # 3 cov
+        genome_ref_covered[l].append(genome_ref_covered[l][2] - genome_ref_covered[l][0].count(0))  # 3 coverage (nt)
         genome_ref_covered[l].append(
             round((genome_ref_covered[l][2] - genome_ref_covered[l][0].count(0)) / genome_ref_covered[l][2] * 100,
                   2))  # 4 % cov
@@ -404,7 +428,6 @@ def default():
     projectSelected = cb1.get().split("'")[-1]
     print(projectSelected)
 
-
 def analyse():
 
     global fastq1Path
@@ -495,7 +518,7 @@ def analyse():
     text1Label.place(x=10, y=45)          # Add a sample
     open_button_fq1.place(x=10, y=70)     #
     open_button_fq2.place(x=10, y=105)    #
-    fq1.place(x=330, y=75)
+    fq1.place(x=330, y=75)                #
     fq2.place(x=330, y=110)               #
     pairedLabel.place(x=220, y=110)       #
     add_sample_button.place(x=10, y=155)  #
@@ -541,12 +564,10 @@ def topButton():
   analyse_button.place(x=-5, y=-5)           #analyze
   reset_button.place(x=125, y=-5)            #reset
   data_button.place(x=500, y=-5)             #data
-  project_button.place(x=260, y=-5)             #data
+  project_button.place(x=260, y=-5)          #project selection
 
 
 # run the application
-
-
 
 #topButton()
 #start()
