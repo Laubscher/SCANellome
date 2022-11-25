@@ -21,7 +21,7 @@ from ttkthemes import ThemedTk
 #main = tk.Tk()
 main = ThemedTk(theme="ubuntu", background=True)
 
-main.title('                                                                      AnV                                                                         v. 0.0.1')
+main.title('                                                                      AnV                                                                         v. 0.0.2')
 main.geometry("800x500")
 
 global pb
@@ -52,7 +52,6 @@ def start():
   #               img                 #
   #####################################
 
-
   if not os.path.exists(pathData + "/IMG"):
     os.mkdir(pathData + "/IMG")
     image = open(pathData + "/IMG/blue.png", 'wb')
@@ -64,6 +63,7 @@ def start():
       main.iconphoto(False, icon)
   except:
       pass
+
   #####################################
   #               log                 #
   #####################################
@@ -116,148 +116,9 @@ def start():
 
   log.close()
 
-
   sampleList = []
 
-######################### batch ##################################################
-def select_file_batch():
-    global pathLastDir
 
-    filetypes = (
-        ('Fastq files', '*.fastq'),
-        ('All files', '*.*')
-    )
-    filenames = fd.askopenfilenames(
-        title='select fastq',
-        initialdir=pathLastDir,
-        filetypes=filetypes)
-
-    for path in filenames:
-        fastq1Path=str(path)
-        fastq1.set(fastq1Path)
-        if fastq1Path.rstrip().split(".")[-1] == "fastq":           #delete this ?
-            fq1.config(background="darkorange1", foreground="white")
-        else:
-            fq1.config(background="yellow", foreground="black")
-        add_sample_batch(fastq1Path)
-
-    pathL = fastq1Path.split("/")         #for remember the path of the directory
-    pathL.pop()
-    pathLastDir = "/".join(pathL)
-
-def add_sample_batch(fastq1Path):
-    global yAdd
-    global sampleList
-    fastq2Path = "<empty>"  # Todo add it if R2 found (and /or check box)
-    sampleName = fastq1Path.split("/")[-1].split(".fastq")[0]
-    # check if sample name is uniq
-    suffix  = fastq1Path.split(".")[-1]
-    # check if fastq
-
-    if sampleName in sampleUniq:
-        print("Sample name not uniq!!")
-        tk.messagebox.showinfo("Sorry can't add your sample..", sampleName + "/nThe sample name is not uniq!")
-
-    elif suffix != "fastq":
-        print("Sample suffix is not fastq!!")
-        tk.messagebox.showinfo("Sorry can't add your sample..", suffix + "/nThe file type is not fastq!")
-
-    else:
-        os.mkdir(pathData + "/USERDATA/" + projectSelected + "/" + sampleName)
-        sample = [sampleName, fastq1Path, fastq2Path, yAdd + 20, minion.get()]
-        sampleList.append(sample)
-        labelListSample = ttk.Label(main, text=sampleName)
-        yAdd += 20
-        labelListSample.place(x=10, y=yAdd)
-        sampleUniq.add(sampleName)
-    print(minion.get())
-    fastq1.set("<empty-mandatory>")
-    fq1.config(background="gray", foreground="black")
-    fastq2.set("<empty>")
-    fq2.config(background="yellow", foreground="black")
-    print(sampleList)
-
-############################ one by one ###############################################################################
-def select_file1():
-    global fastq1Path
-    global pathLastDir
-    filetypes = (
-        ('Fastq files', '*.fastq'),
-        ('All files', '*.*')
-    )
-    filename = fd.askopenfilename(
-        title='Open a file',
-        initialdir=pathLastDir,
-        filetypes=filetypes)
-
-    fastq1Path = str(filename)
-    print(fastq1Path)
-
-    fastq1.set(fastq1Path)
-    pathL = fastq1Path.split("/")
-    pathL.pop()
-    pathLastDir = "/".join(pathL)
-
-    if fastq1Path.rstrip().split(".")[-1] == "fastq":
-        fq1.config(background="darkorange1", foreground="white")
-    else:
-        fq1.config(background="yellow", foreground="black")
-
-def select_file2():
-    global fastq2Path
-    global pathLastDir
-    filetypes = (
-        ('Fastq files', '*.fastq'),
-        ('All files', '*.*')
-    )
-
-    filename = fd.askopenfilename(
-        title='Open a file',
-        initialdir=pathLastDir,
-        filetypes=filetypes)
-
-    fastq2Path = str(filename)
-
-    fastq2.set(fastq2Path)
-
-    pathL = fastq2Path.split("/")
-    pathL.pop()
-    pathLastDir = "/".join(pathL)
-
-    if fastq2Path.rstrip().split(".")[-1] == "fastq":
-        fq2.config(background="orange", foreground="white")
-    else:
-        fq2.config(background="yellow", foreground="black")
-
-def add_sample():
-    global yAdd
-    sampleName = fastq1Path.split("/")[-1].split(".fastq")[0]
-    # check if sample name is uniq
-    suffix  = fastq1Path.split(".")[-1]
-    # check if fastq
-
-    if sampleName in sampleUniq:
-        print("Sample name not uniq!!")
-        tk.messagebox.showinfo("Sorry can't add your sample..", "The sample name is not uniq!")
-
-    elif suffix != "fastq":
-        print("Sample suffix is not fastq!!")
-        tk.messagebox.showinfo("Sorry can't add your sample..", "The file type is not fastq!")
-
-    else:
-        os.mkdir(pathData + "/USERDATA/" + projectSelected + "/" + sampleName)
-        sample = [sampleName, fastq1Path, fastq2Path, yAdd + 20, minion.get()]
-        sampleList.append(sample)
-        labelListSample = ttk.Label(main, text=sampleName)
-        yAdd += 20
-        labelListSample.place(x=10, y=yAdd)
-        sampleUniq.add(sampleName)
-    print(minion.get())
-    fastq1.set("<empty-mandatory>")
-    fq1.config(background="gray", foreground="black")
-    fastq2.set("<empty>")
-    fq2.config(background="yellow", foreground="black")
-#######################################################################################################################
 def run():
     global pb
     global main
@@ -300,7 +161,7 @@ def run():
         text='Save',
         command=file_save
     )
-    save_button.place(x=290, y=155)
+    save_button.place(x=290, y=195)
     tk.messagebox.showinfo("Analysis completed", "Analysis completed" + "\n")
     log.close()
 
@@ -419,14 +280,153 @@ def mapping(pathToFastq, db, nameS, type, pathToFastq2):
     pb['value'] += 4
     main.update()
 
-    return ("done")
+######################### batch ##################################################
+def select_file_batch():
+    global pathLastDir
+
+    filetypes = (
+        ('Fastq files', '*.fastq'),
+        ('All files', '*.*')
+    )
+    filenames = fd.askopenfilenames(
+        title='select fastq',
+        initialdir=pathLastDir,
+        filetypes=filetypes)
+
+    for path in filenames:
+        fastq1Path=str(path)
+        if fastq1Path.rstrip().split(".")[-1] == "fastq":           #delete this ?
+            pass
+        else:
+            pass # add a window error here
+        add_sample_batch(fastq1Path)
+
+    pathL = fastq1Path.split("/")           #for remember the path of the directory
+    pathL.pop()
+    pathLastDir = "/".join(pathL)
+
+def add_sample_batch(fastq1Path):
+    global yAdd
+    global sampleList
+    global sampleUniq
+
+    fastq2Path = "<empty>"  # Todo add it if R2 found (and /or check box)
+    sampleName = fastq1Path.split("/")[-1].split(".fastq")[0]
+    # check if sample name is uniq
+    suffix = fastq1Path.split(".")[-1]
+    # check if fastq
+
+    if sampleName in sampleUniq:
+        print("Sample name not uniq!!")
+        tk.messagebox.showinfo("Sorry can't add your sample..", sampleName + "/nThe sample name is not uniq!")
+
+    elif suffix != "fastq":
+        print("Sample suffix is not fastq!!")
+        tk.messagebox.showinfo("Sorry can't add your sample..", suffix + "/nThe file type is not fastq!")
+
+    else:
+        os.mkdir(pathData + "/USERDATA/" + projectSelected + "/" + sampleName)
+        sample = [sampleName, fastq1Path, fastq2Path, yAdd + 20, minion.get()]
+        sampleList.append(sample)
+        labelListSample = ttk.Label(main, text=sampleName)
+        yAdd += 20
+        labelListSample.place(x=10, y=yAdd)
+        sampleUniq.add(sampleName)
+
+    print(minion.get())
+    print(sampleList)
+
+'''############################ one by one ###############################################################################
+
+def select_file1():
+    global fastq1Path
+    global pathLastDir
+    filetypes = (
+        ('Fastq files', '*.fastq'),
+        ('All files', '*.*')
+    )
+    filename = fd.askopenfilename(
+        title='Open a file',
+        initialdir=pathLastDir,
+        filetypes=filetypes)
+
+    fastq1Path = str(filename)
+    print(fastq1Path)
+
+    fastq1.set(fastq1Path)
+    pathL = fastq1Path.split("/")
+    pathL.pop()
+    pathLastDir = "/".join(pathL)
+
+    if fastq1Path.rstrip().split(".")[-1] == "fastq":
+        fq1.config(background="darkorange1", foreground="white")
+    else:
+        fq1.config(background="yellow", foreground="black")
+
+def select_file2():
+    global fastq2Path
+    global pathLastDir
+    filetypes = (
+        ('Fastq files', '*.fastq'),
+        ('All files', '*.*')
+    )
+
+    filename = fd.askopenfilename(
+        title='Open a file',
+        initialdir=pathLastDir,
+        filetypes=filetypes)
+
+    fastq2Path = str(filename)
+
+    fastq2.set(fastq2Path)
+
+    pathL = fastq2Path.split("/")
+    pathL.pop()
+    pathLastDir = "/".join(pathL)
+
+    if fastq2Path.rstrip().split(".")[-1] == "fastq":
+        fq2.config(background="orange", foreground="white")
+    else:
+        fq2.config(background="yellow", foreground="black")
+
+def add_sample():
+    global yAdd
+    sampleName = fastq1Path.split("/")[-1].split(".fastq")[0]
+    # check if sample name is uniq
+    suffix  = fastq1Path.split(".")[-1]
+    # check if fastq
+
+    if sampleName in sampleUniq:
+        print("Sample name not uniq!!")
+        tk.messagebox.showinfo("Sorry can't add your sample..", "The sample name is not uniq!")
+
+    elif suffix != "fastq":
+        print("Sample suffix is not fastq!!")
+        tk.messagebox.showinfo("Sorry can't add your sample..", "The file type is not fastq!")
+
+    else:
+        os.mkdir(pathData + "/USERDATA/" + projectSelected + "/" + sampleName)
+        sample = [sampleName, fastq1Path, fastq2Path, yAdd + 20, minion.get()]
+        sampleList.append(sample)
+        labelListSample = ttk.Label(main, text=sampleName)
+        yAdd += 20
+        labelListSample.place(x=10, y=yAdd)
+        sampleUniq.add(sampleName)
+    print(minion.get())
+    fastq1.set("<empty-mandatory>")
+    fq1.config(background="gray", foreground="black")
+    fastq2.set("<empty>")
+    fq2.config(background="yellow", foreground="black")
+
+#######################################################################################################################'''
+
 
 def file_save():
     nameNewCsv = fd.asksaveasfile(mode='w', defaultextension=".csv")
     text2save="Sample Name, ACC. NUMBER, Reads, ref_len, cov, %cov, depth (median), GENUS, GROUP, SPECIES, GENOTYPE, HOST\n"
     for s in sampleList:
         try:
-            fichier = open(pathData + "/USERDATA/"+ projectSelected + "/" + s[0] + "/species.csv", "r")    # if error during mapping file will not existe
+            fichier = open(pathData + "/USERDATA/" + projectSelected + "/" + s[0] + "/species.csv", "r")    # if error during mapping file will not existe
             for lane in fichier.read():
               text2save += lane
             fichier.close()
@@ -487,7 +487,7 @@ def default():
     projectSelected = cb1.get().split("'")[-1]
     print(projectSelected)
 
-def analyse():
+'''def analyse():
 
     global fastq1Path
     global fastq2Path
@@ -585,16 +585,11 @@ def analyse():
     text2Label.place(x=10, y=200)         #
     minion_check.place(x=330, y=50)       # Oxford Nanopore
 
-
-######################################################################################################################
+######################################################################################################################'''
 
 def analyse_batch():
 
     global fastq1Path
-    global fastq1
-    global fastq2
-    global fq1
-    global fq2
     global sampleList
     global projectSelected
     global sampleUniq
@@ -604,6 +599,10 @@ def analyse_batch():
     global text1Label
     global text2Label
     global minion
+    global illuminaSE
+    global illuminaPE
+
+
     global pathData
 
     projectSelected = cb1.get()
@@ -622,26 +621,22 @@ def analyse_batch():
     minion = tk.IntVar(main, 0)  # 1 if Nanopore data 0 otherwise         # The check mark box
     minion.set(0)
 
-    yAdd = 200
+    illuminaSE = tk.IntVar(main, 1)  #if illumina Single End 1 otherwise 0
+    illuminaSE.set(1)
+
+    illuminaPE = tk.IntVar(main, 0)  # Paired End
+    illuminaPE.set(0)
+
+
+
+    yAdd = 250    # height
 
     sampleUniq = set(listdir(pathData + "/USERDATA/" + projectSelected + "/"))
 
     open_button = ttk.Button(
         main,
-        text='Select Fastq File 1',
+        text='Add Fastq File(s)',
         command=select_file_batch
-    )
-
-    open_button_fq2 = ttk.Button(
-        main,
-        text='Select Fastq File 2',
-        command=select_file2
-    )
-
-    add_sample_button = ttk.Button(
-        main,
-        text='Add',
-        command=add_sample
     )
 
     run_button = ttk.Button(
@@ -655,36 +650,51 @@ def analyse_batch():
     minion_check = ttk.Checkbutton(
         main,
         text="Oxford Nanopore",
-        variable=minion
+        variable=minion,
+        command=excludeM
     )
-    fastq1Path = "<empty-mandatory>"
-    fastq2Path = "<empty>"
 
-    fastq1 = tk.StringVar()
-    fastq2 = tk.StringVar()
+    illuminaSE_check = ttk.Checkbutton(
+        main,
+        text="Illumina single end",
+        variable=illuminaSE,
+        command=excludeS
+    )
 
-    fastq1.set(fastq1Path)
-    fastq2.set(fastq2Path)
+    illuminaPE_check = ttk.Checkbutton(
+        main,
+        text="Illumina paired end",
+        variable=illuminaPE,
+        command=excludeP
+    )
 
-    fq1 = ttk.Label(main, textvariable=fastq1, background="gray", foreground="black", relief="ridge")
-    fq2 = ttk.Label(main, textvariable=fastq2, background="yellow", foreground="black", relief="ridge")
+    text1Label = ttk.Label(main, text="Select samples to add:")
+    text2Label = ttk.Label(main, text="Sample list: ")
 
-    pairedLabel = ttk.Label(main, text="(if paired)")
+    text1Label.place(x=10, y=45)         # Add a sample
+    open_button.place(x=10, y=140)       #
+    run_button.place(x=10, y=195)        #
+    text2Label.place(x=10, y=240)        #
+    minion_check.place(x=10, y=70)       # Oxford Nanopore
+    illuminaSE_check.place(x=10, y=90)
+    illuminaPE_check.place(x=10, y=110)
 
-    text1Label = ttk.Label(main, text="Add a sample:")
-    text2Label = ttk.Label(main, text="Sample list:")
 
-    text1Label.place(x=10, y=45)          # Add a sample
-    open_button.place(x=10, y=70)         #
-    fq1.place(x=330, y=75)                #
-    fq2.place(x=330, y=110)               #
-    pairedLabel.place(x=220, y=110)       #
-    add_sample_button.place(x=10, y=155)  #
-    run_button.place(x=150, y=155)        #
-    text2Label.place(x=10, y=200)         #
-    minion_check.place(x=330, y=50)       # Oxford Nanopore
+def excludeM():
+    if minion.get() == 1:
+        illuminaSE.set(0)
+        illuminaPE.set(0)
+
+def excludeS():
+    if illuminaSE.get() == 1:
+        minion.set(0)
+        illuminaPE.set(0)
+def excludeP():
+    if illuminaPE.get() == 1:
+        minion.set(0)
+        illuminaSE.set(0)
+
 #######################################################################################################################
-
 
 # button
 
@@ -712,7 +722,6 @@ def topButton():
     text='Data',
     command=dataA
   )
-
 
   project_button = ttk.Button(
     main,
