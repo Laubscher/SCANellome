@@ -144,7 +144,8 @@ def run():
           else:
               type="Single"
               print("single")
-          mapping(s[1], pathData + "/DATABASE/Anello.fasta", s[0], type, s[3])
+          mapping(s[1], pathData + "/DATABASE/Anello.fasta", s[0], type, s[2])
+
 
         except:
           log.write("Error during mapping.. sample:" + str(s[0]) + "\n files may be corrupted!" + "\n")
@@ -167,6 +168,7 @@ def run():
 
 def map1Fastq(pathToFastq, genome_ref_covered, a):
       print("map1")
+      print(pathToFastq)
       generator = mp.fastx_read(pathToFastq)
       for name, seq, qual in generator:
         for hit in a.map(seq):
@@ -310,31 +312,41 @@ def add_sample_batch(fastq1Path):
     global sampleList
     global sampleUniq
 
-    fastq2Path = "<empty>"  # Todo add it if R2 found (and /or check box)
-    sampleName = fastq1Path.split("/")[-1].split(".fastq")[0]
-    # check if sample name is uniq
-    suffix = fastq1Path.split(".")[-1]
+    isSample = True
+    if illuminaPE.get() == 1:
+        if fastq1Path.split("_R1_001")[-1] != ".fastq":
+          isSample=False
+        else:
+          fastq2Path = fastq1Path.split("_R1_001.fastq")[0] + "_R2_001.fastq"
+          sampleName = fastq1Path.split("/")[-1].split("_R1_001.fastq")[0]
+    else :
+        fastq2Path = "<empty>"  # Todo add it if R2 found (and /or check box)
+        sampleName = fastq1Path.split("/")[-1].split(".fastq")[0]
+    if isSample:
+        suffix = fastq1Path.split(".")[-1]
     # check if fastq
 
-    if sampleName in sampleUniq:
-        print("Sample name not uniq!!")
-        tk.messagebox.showinfo("Sorry can't add your sample..", sampleName + "/nThe sample name is not uniq!")
+    # check if sample name is uniq
+        if sampleName in sampleUniq:
+          print("Sample name not uniq!!")
+          tk.messagebox.showinfo("Sorry can't add your sample..", '\n"' + sampleName + '"\n\nThe sample name already exist in this project.\n')
 
-    elif suffix != "fastq":
-        print("Sample suffix is not fastq!!")
-        tk.messagebox.showinfo("Sorry can't add your sample..", suffix + "/nThe file type is not fastq!")
+        elif suffix != "fastq":
+          print("Sample suffix is not fastq!!")
+          tk.messagebox.showinfo("Sorry can't add your sample..", '\n"' + suffix + '"\n\nThe file type is not fastq!')
 
-    else:
-        os.mkdir(pathData + "/USERDATA/" + projectSelected + "/" + sampleName)
-        sample = [sampleName, fastq1Path, fastq2Path, yAdd + 20, minion.get()]
-        sampleList.append(sample)
-        labelListSample = ttk.Label(main, text=sampleName)
-        yAdd += 20
-        labelListSample.place(x=10, y=yAdd)
-        sampleUniq.add(sampleName)
+        else:
+          os.mkdir(pathData + "/USERDATA/" + projectSelected + "/" + sampleName)
+          sample = [sampleName, fastq1Path, fastq2Path, yAdd + 20, minion.get()]
+          sampleList.append(sample)
+          labelListSample = ttk.Label(main, text=sampleName)
+          yAdd += 20
+          labelListSample.place(x=10, y=yAdd)
+          sampleUniq.add(sampleName)
 
-    print(minion.get())
     print(sampleList)
+
+
 
 '''############################ one by one ###############################################################################
 
@@ -477,12 +489,12 @@ def default():
     topButton()
     start()
 
-    text3Label = ttk.Label(main, text="Select a project:")
+    text3Label = ttk.Label(main, text="Enter a project name:")
 
     text3Label.place(x=10, y=45)          # Add a sample
 
     cb1 = ttk.Combobox(main, values=projectList)#, width=7)
-    cb1.place(x=170, y=45)
+    cb1.place(x=215, y=45)
 
     projectSelected = cb1.get().split("'")[-1]
     print(projectSelected)
@@ -602,7 +614,6 @@ def analyse_batch():
     global illuminaSE
     global illuminaPE
 
-
     global pathData
 
     projectSelected = cb1.get()
@@ -626,8 +637,6 @@ def analyse_batch():
 
     illuminaPE = tk.IntVar(main, 0)  # Paired End
     illuminaPE.set(0)
-
-
 
     yAdd = 250    # height
 
