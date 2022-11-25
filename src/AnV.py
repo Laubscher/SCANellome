@@ -26,7 +26,7 @@ main.geometry("800x500")
 
 global pb
 
-def start():
+def start():   # start is a function that check or make the file structure for the whole application
   #Variables
   global fastq1Path
   global fastq2Path
@@ -119,7 +119,7 @@ def start():
   sampleList = []
 
 
-def run():
+def run():        #start the run -> mapping + analyse of all sample in the sample list, throws an error if mapping fail
     global pb
     global main
     log = open(pathData + "/LOG/log.txt", "a")
@@ -498,6 +498,13 @@ def default():
 
     projectSelected = cb1.get().split("'")[-1]
     print(projectSelected)
+
+    enter_button = ttk.Button(   #button enter-like
+        main,
+        text='⏎',
+        command=analyse_batch
+    )
+    enter_button.place(x=380, y=40)           #analyze
 
 '''def analyse():
 
