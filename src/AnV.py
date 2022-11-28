@@ -16,12 +16,14 @@ import Dicodb                             # module that contain the database in 
 import base64
 import img
 from ttkthemes import ThemedTk
+from tkinter import Menu
+
 
 # The software window
 #main = tk.Tk()
 main = ThemedTk(theme="ubuntu", background=True)
 
-main.title('                                                                      AnV                                                                         v. 0.0.2')
+main.title('                                                                      AnV                                                                         v. 0.0.3')
 main.geometry("800x500")
 
 global pb
@@ -715,6 +717,8 @@ def excludeP():
 # button
 
 def topButton():
+
+
   delete_button = ttk.Button(
     main,
     text='Delete all data',
@@ -727,11 +731,7 @@ def topButton():
     command=resetA
   )
 
-  analyse_button = ttk.Button(
-    main,
-    text='Analysis',
-    command=analyse_batch
-  )
+
 
   data_button = ttk.Button(
     main,
@@ -739,17 +739,49 @@ def topButton():
     command=dataA
   )
 
-  project_button = ttk.Button(
-    main,
-    text='Project selection',
+  #delete_button.place(x=625, y=-5)           #delete all data
+  #analyse_button.place(x=-5, y=15)           #analyze
+  #reset_button.place(x=125, y=-5)            #reset
+  #data_button.place(x=500, y=-5)             #data
+  #project_button.place(x=260, y=15)          #project selection
+
+  # create a menubar
+  menubar = Menu(main)
+  main.config(menu=menubar)
+
+  # create a menu "File"
+  file_menu = Menu(menubar)
+
+  # add menu items
+  file_menu.add_command(
+    label='Project selection',
     command=default
   )
+  file_menu.add_command(
+    label='Analysis',
+    command=analyse_batch
+  )
+  file_menu.add_command(
+    label='Exit',
+    command=main.destroy
+  )
+  # add the "File" menu to the menubar
+  menubar.add_cascade(
+    label="File",
+    menu=file_menu
+  )
 
-  delete_button.place(x=625, y=-5)           #delete all data
-  analyse_button.place(x=-5, y=-5)           #analyze
-  reset_button.place(x=125, y=-5)            #reset
-  data_button.place(x=500, y=-5)             #data
-  project_button.place(x=260, y=-5)          #project selection
+
+
+
+
+
+
+
+
+
+
+
 
 
 # run the application
