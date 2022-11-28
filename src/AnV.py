@@ -21,7 +21,7 @@ from tkinter import Menu
 
 # The software window
 #main = tk.Tk()
-main = ThemedTk(theme="ubuntu", background=True)
+main = ThemedTk(theme="ubuntu", background=True, className="AnV v. 0.0.3")
 
 main.title('                                                                      AnV                                                                         v. 0.0.3')
 main.geometry("800x500")
