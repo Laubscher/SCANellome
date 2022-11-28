@@ -66,6 +66,7 @@ def start():   # start is a function that check or make the file structure for t
   except:
       pass
 
+
   #####################################
   #               log                 #
   #####################################
@@ -646,7 +647,8 @@ def analyse_batch():
 
     projectSelected = cb1.get()
     # test if project exist otherwise mk directory
-
+    if projectSelected == "":
+        projectSelected="default"
     if not os.path.exists(pathData + "/USERDATA/" + projectSelected):
         os.mkdir(pathData + "/USERDATA/" + projectSelected)
         log = open(pathData + "/LOG/log.txt", "a")
@@ -719,7 +721,7 @@ def analyse_batch():
     text1Label = ttk.Label(main, text="Select samples to add:")
     text2Label = ttk.Label(main, text="Added sample: ")
 
-    text05Label.place(x=500, y=5)  #
+    text05Label.place(x=510, y=5)  #
     text0Label.place(x=350, y=5)  #
     text1Label.place(x=10, y=45)         # Add a sample
     open_button.place(x=10, y=140)       #
@@ -752,7 +754,7 @@ def topButton():
 
   # mini menubar
 
-  file = tk.Menubutton(main, text="File",fg="gray", activebackground="darkorange1")
+  file = tk.Menubutton(main, text="File", fg="gray", activebackground="darkorange1")
 
   file.menu = Menu(file, tearoff=0, fg="gray", activebackground="darkorange1")
   file["menu"] = file.menu
