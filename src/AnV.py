@@ -459,6 +459,25 @@ def deleteA():
         widgets.destroy()
     topButton()
 
+
+def deleteP():
+    global sampleUniq
+    global projectSelected
+    sampleUniq = []
+    try:
+        projectSelected = cb1.get()
+    except:
+        pass
+    if projectSelected == "":
+        print("no project to delete")
+    else:
+        print("delete" + projectSelected)
+        shutil.rmtree(pathData + "/USERDATA/" + projectSelected)
+    start()
+    for widgets in main.winfo_children():
+        widgets.destroy()
+    topButton()
+
 def resetA():
     global sampleList
     global sampleUniq
@@ -638,6 +657,9 @@ def analyse_batch():
         widgets.destroy()
     topButton()
 
+
+
+
     minion = tk.IntVar(main, 0)  # 1 if Nanopore data 0 otherwise         # The check mark box
     minion.set(0)
 
@@ -691,9 +713,14 @@ def analyse_batch():
         text='Reset',
         command=resetA
     )
-    text1Label = ttk.Label(main, text="Select samples to add:")
-    text2Label = ttk.Label(main, text="Sample list: ")
+    text0Label = ttk.Label(main, text="Selected project: ", foreground="gray")
+    text05Label = ttk.Label(main, text=projectSelected, foreground="darkorange1")
 
+    text1Label = ttk.Label(main, text="Select samples to add:")
+    text2Label = ttk.Label(main, text="Added sample: ")
+
+    text05Label.place(x=500, y=5)  #
+    text0Label.place(x=350, y=5)  #
     text1Label.place(x=10, y=45)         # Add a sample
     open_button.place(x=10, y=140)       #
     run_button.place(x=10, y=195)        #
@@ -725,7 +752,6 @@ def topButton():
 
   # mini menubar
 
-
   file = tk.Menubutton(main, text="File",fg="gray", activebackground="darkorange1")
 
   file.menu = Menu(file, tearoff=0, fg="gray", activebackground="darkorange1")
@@ -738,17 +764,16 @@ def topButton():
 
   file.menu.insert_separator(2)
 
-  edit = tk.Menubutton(main, text="Edit",fg="gray", activebackground="darkorange1")
+  edit = tk.Menubutton(main, text="Edit", fg="gray", activebackground="darkorange1")
   edit.menu = Menu(edit, tearoff=0, fg="gray", activebackground="darkorange1")
   edit["menu"] = edit.menu
   edit.place(x=45, y=0)
 
-  edit.menu.add_command(label='Delete project', command=deleteA)
-
+  edit.menu.add_command(label='Delete project', command=deleteP)
 
   edit.menu.add_command(label='Delete all data', command=deleteA)
 
-  view = tk.Menubutton(main, text="View",fg="gray", activebackground="darkorange1")
+  view = tk.Menubutton(main, text="View", fg="gray", activebackground="darkorange1")
 
   view.menu = Menu(view, tearoff=0, fg="gray", activebackground="darkorange1")
   view["menu"] = view.menu
