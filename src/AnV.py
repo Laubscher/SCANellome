@@ -686,6 +686,11 @@ def analyse_batch():
         command=excludeP
     )
 
+    reset_button = ttk.Button(
+        main,
+        text='Reset',
+        command=resetA
+    )
     text1Label = ttk.Label(main, text="Select samples to add:")
     text2Label = ttk.Label(main, text="Sample list: ")
 
@@ -696,7 +701,7 @@ def analyse_batch():
     minion_check.place(x=10, y=70)       # Oxford Nanopore
     illuminaSE_check.place(x=10, y=90)
     illuminaPE_check.place(x=10, y=110)
-
+    reset_button.place(x=150, y=195)            #reset
 
 def excludeM():
     if minion.get() == 1:
@@ -718,70 +723,37 @@ def excludeP():
 
 def topButton():
 
-
-  delete_button = ttk.Button(
-    main,
-    text='Delete all data',
-    command=deleteA
-  )
-
-  reset_button = ttk.Button(
-    main,
-    text='Reset',
-    command=resetA
-  )
+  # mini menubar
 
 
+  file = tk.Menubutton(main, text="File",fg="gray", activebackground="darkorange1")
 
-  data_button = ttk.Button(
-    main,
-    text='Data',
-    command=dataA
-  )
+  file.menu = Menu(file, tearoff=0, fg="gray", activebackground="darkorange1")
+  file["menu"] = file.menu
+  file.place(x=0, y=0)
 
-  #delete_button.place(x=625, y=-5)           #delete all data
-  #analyse_button.place(x=-5, y=15)           #analyze
-  #reset_button.place(x=125, y=-5)            #reset
-  #data_button.place(x=500, y=-5)             #data
-  #project_button.place(x=260, y=15)          #project selection
+  file.menu.add_command(label='Project selection', command=default)
+  file.menu.add_command(label='Analysis', command=analyse_batch)
+  file.menu.add_command(label='Exit', command=main.destroy)
 
-  # create a menubar
-  menubar = Menu(main)
-  main.config(menu=menubar)
+  file.menu.insert_separator(2)
 
-  # create a menu "File"
-  file_menu = Menu(menubar)
+  edit = tk.Menubutton(main, text="Edit",fg="gray", activebackground="darkorange1")
+  edit.menu = Menu(edit, tearoff=0, fg="gray", activebackground="darkorange1")
+  edit["menu"] = edit.menu
+  edit.place(x=45, y=0)
 
-  # add menu items
-  file_menu.add_command(
-    label='Project selection',
-    command=default
-  )
-  file_menu.add_command(
-    label='Analysis',
-    command=analyse_batch
-  )
-  file_menu.add_command(
-    label='Exit',
-    command=main.destroy
-  )
-  # add the "File" menu to the menubar
-  menubar.add_cascade(
-    label="File",
-    menu=file_menu
-  )
+  edit.menu.add_command(label='Delete project', command=deleteA)
 
 
+  edit.menu.add_command(label='Delete all data', command=deleteA)
 
+  view = tk.Menubutton(main, text="View",fg="gray", activebackground="darkorange1")
 
-
-
-
-
-
-
-
-
+  view.menu = Menu(view, tearoff=0, fg="gray", activebackground="darkorange1")
+  view["menu"] = view.menu
+  view.place(x=90, y=0)
+  view.menu.add_command(label='Data', command=dataA)
 
 
 # run the application
