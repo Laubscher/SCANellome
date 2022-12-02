@@ -165,7 +165,8 @@ def run():        #start the run -> mapping + analyse of all sample in the sampl
         text='Save',
         command=file_save
     )
-    save_button.place(x=290, y=195)
+    save_button.place(x=150, y=195)
+    reset_button.destroy()
     tk.messagebox.showinfo("Analysis completed", "Analysis completed" + "\n")
     log.close()
 
@@ -642,6 +643,7 @@ def analyse_batch():
     global minion
     global illuminaSE
     global illuminaPE
+    global reset_button
 
     global pathData
 
@@ -658,9 +660,6 @@ def analyse_batch():
     for widgets in main.winfo_children():
         widgets.destroy()
     topButton()
-
-
-
 
     minion = tk.IntVar(main, 0)  # 1 if Nanopore data 0 otherwise         # The check mark box
     minion.set(0)
@@ -781,7 +780,6 @@ def topButton():
   view["menu"] = view.menu
   view.place(x=90, y=0)
   view.menu.add_command(label='Data', command=dataA)
-
 
 # run the application
 
