@@ -350,8 +350,6 @@ def add_sample_batch(fastq1Path):
 
     print(sampleList)
 
-
-
 '''############################ one by one ###############################################################################
 
 def select_file1():
@@ -461,7 +459,6 @@ def deleteA():
         widgets.destroy()
     topButton()
 
-
 def deleteP():
     global sampleUniq
     global projectSelected
@@ -500,6 +497,22 @@ def dataA():
     topButton()
 
     projectSelected = cb1.get()
+    sampleInProject = listdir(pathData + "/USERDATA/" + projectSelected)  # list of all sample in the project
+
+    projectCsv = open(pathData + "/USERDATA/" + projectSelected + "/project.csv", "w")
+
+
+    text2save=""
+    for s in sampleInProject:
+        try:   #if files in project
+            fichier = open(pathData + "/USERDATA/" + projectSelected + "/" + s[0] + "/species.csv", "r")
+            for lane in fichier.read():
+              text2save += lane
+            fichier.close()
+        except:
+         pass
+    projectCsv.write(text2save)
+    projectCsv.close
 
 def default():
 
@@ -716,10 +729,8 @@ def analyse_batch():
     )
     text0Label = ttk.Label(main, text="Selected project: ", foreground="gray")
     text05Label = ttk.Label(main, text=projectSelected, foreground="darkorange1")
-
     text1Label = ttk.Label(main, text="Select samples to add:")
     text2Label = ttk.Label(main, text="Added sample: ")
-
     text05Label.place(x=510, y=5)  #
     text0Label.place(x=350, y=5)  #
     text1Label.place(x=10, y=45)         # Add a sample
@@ -783,8 +794,6 @@ def topButton():
 
 # run the application
 
-#topButton()
-#start()
 default()
 
 main.mainloop()
