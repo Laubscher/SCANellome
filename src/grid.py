@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 import plotly.express as px
-
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import glob
 
 # file name in a list, then read once all the file to make a set of virus name in all the project # ? devide by genus
 # then reread all the file to make a dictionary where all key are sampleID and values are
 # an other dictionary with keys as virusNames and values as nb of reads
-
 
 fileList = glob.glob("*/species.csv")
 
@@ -47,6 +47,9 @@ for file in fileList:
             sampleDico[sampleName][line.split(",")[9]] += int(line.split(",")[5].split(".")[0])  # attention arrondir
     f.close()
 
+
+# mettre none à la place de 0 et dans le heatmap hoverongaps = False
+
 sampleNameList = list(sampleNameSet)
 virusNameList = list(virusNameSet)
 
@@ -57,11 +60,21 @@ for sample in sampleNameList:
         valueList.append(sampleDico[sample][virus])
     data.append(valueList)
 
-fig = px.imshow(data,
-                labels=dict(x="Viruses", y="Samples", color="% Coverage"),
+fig = make_subplots(2,1)
+
+fig.add_trace( go.Heatmap(z=data,
+                hovertemplate='Coverage: %{z} %'+'<br>Virus: %{x}',
                 x=virusNameList,
                 y=sampleNameList
-                )
+                ), 1,1)
 
-fig.update_xaxes(side="top")
+fig.add_trace( go.Heatmap(z=data,
+                hovertemplate='Coverage: %{z} %' + '<br>Virus: %{x}',
+                x=virusNameList,
+                y=sampleNameList
+                ), 2,1)
+
+fig.write_html("file.html")
+#fig.update_xaxes(side="top")
 fig.show()
+# labels=dict(x="Viruses", y="Samples", z="% Coverage"),
