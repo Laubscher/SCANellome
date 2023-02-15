@@ -12,19 +12,37 @@ fileList = glob.glob("*/species.csv")
 
 sampleDico = {}
 
-virusNameSet = set()
+genusNameSet = set()
+
 sampleNameSet = set()
 
 for file in fileList:
     f = open(file, "r")
     for line in f:
-        virusNameSet.add(line.split(",")[9])
+        genusNameSet.add(line.split(",")[7])
         sampleNameSet.add(line.split(",")[0])
     f.close()
 
+sampleNameList = list(sampleNameSet)
+genusNameList = sorted(list(genusNameSet))
+
 # virusNameSet.remove('Virus')
 
-for file in fileList:
+
+fig = make_subplots(len(genusNameList),1)   # make one subplot for each genus
+n=0  # counter n-ème subplot
+
+for genus in genusNameList:
+  n+=1
+  virusNameSet = set()
+  for file in fileList:
+        f = open(file, "r")
+        for line in f:
+            if genus == line.split(",")[7]:
+              virusNameSet.add(line.split(",")[9])
+        f.close()
+  virusNameList = list(virusNameSet)
+  for file in fileList:
     virusNameDico = {}
 
     # getsample name should be unique in one file
@@ -50,29 +68,25 @@ for file in fileList:
 
 # mettre none à la place de 0 et dans le heatmap hoverongaps = False
 
-sampleNameList = list(sampleNameSet)
-virusNameList = list(virusNameSet)
 
-data = []
-for sample in sampleNameList:
+  data = []
+  for virus in virusNameList:
     valueList = []
-    for virus in virusNameList:
+    for sample in sampleNameList:
         valueList.append(sampleDico[sample][virus])
     data.append(valueList)
+  print(data)
 
-fig = make_subplots(2,1)
 
-fig.add_trace( go.Heatmap(z=data,
-                hovertemplate='Coverage: %{z} %'+'<br>Virus: %{x}',
-                x=virusNameList,
-                y=sampleNameList
-                ), 1,1)
 
-fig.add_trace( go.Heatmap(z=data,
-                hovertemplate='Coverage: %{z} %' + '<br>Virus: %{x}',
-                x=virusNameList,
-                y=sampleNameList
-                ), 2,1)
+  fig.add_trace( go.Heatmap(z=data,name=str(genus),
+                hovertemplate='Coverage: %{z} %'+'<br>Virus: %{y}'+'<br>Sample: %{x}',
+                y=virusNameList,
+                x=sampleNameList
+                ), n,1)
+
+
+
 
 fig.write_html("file.html")
 #fig.update_xaxes(side="top")
