@@ -18,6 +18,10 @@ import img
 from ttkthemes import ThemedTk
 from tkinter import Menu
 
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import glob
+
 
 # The software window
 #main = tk.Tk()
@@ -496,10 +500,119 @@ def dataA():
         widgets.destroy()
     topButton()
 
-    projectSelected = cb1.get()
-    sampleInProject = listdir(pathData + "/USERDATA/" + projectSelected)  # list of all sample in the project
+    # file name in a list, then read once all the file to make a set of virus name in all the project # ? devide by genus
+    # then reread all the file to make a dictionary where all key are sampleID and values are
+    # an other dictionary with keys as virusNames and values as nb of reads
 
-    projectCsv = open(pathData + "/USERDATA/" + projectSelected + "/project.csv", "w")
+    #projectSelected = cb1.get()
+    #sampleInProject = listdir(pathData + "/USERDATA/" + projectSelected)  # list of all sample in the project
+    print(projectSelected)
+    fileList0 = glob.glob(pathData + "/USERDATA/" + projectSelected +"/*/species.csv")
+    print(fileList0)
+    sampleDico = {}
+
+    genusNameSet = set()
+
+    sampleNameSet = set()
+
+    fileList=[]
+    for file in fileList0:
+        print(file)
+        f = open(file, "r")
+        isRSLTS=False              #if any output for this sample
+        for line in f:
+              genusNameSet.add(line.split(",")[7])
+              sampleNameSet.add(line.split(",")[0])
+              isRSLTS=line.split(",")[0]
+        print(isRSLTS)
+        if isRSLTS:
+          print(isRSLTS, file)
+          fileList.append(file)
+        f.close()
+
+    # les fichiers vide sont exlue de la liste des samples On peut les inclures faut récuperer le nom et mettre none partour
+
+
+    if fileList==[]:
+        print("No anellovirus detected")  #TODO: pop up windows
+    print(fileList)
+    sampleNameList = list(sampleNameSet)
+    genusNameList = sorted(list(genusNameSet))
+
+    # virusNameSet.remove('Virus')
+
+    fig = make_subplots(len(genusNameList), 1)  # make one subplot for each genus
+    n = 0  # counter n-ème subplot
+
+    for genus in genusNameList:
+        n += 1
+        virusNameSet = set()
+        for file in fileList:
+            f = open(file, "r")
+            for line in f:
+                if genus == line.split(",")[7]:
+                    virusNameSet.add(line.split(",")[9])
+            f.close()
+        virusNameList = list(virusNameSet)
+        for file in fileList:
+            virusNameDico = {}
+
+            # getsample name should be unique in one file
+            sampleNameSetInFile = set()
+            f = open(file, "r")
+            for line in f:
+                sampleNameSetInFile.add(line.split(",")[0])
+            f.close()
+            sampleName = list(sampleNameSetInFile)[0]
+            print(sampleName)
+
+            # populate dictionary entry with each virus found in the project and value 0
+            for virusName in virusNameSet:
+                virusNameDico[virusName] = 0
+
+            sampleDico[sampleName] = virusNameDico
+            f = open(file, "r")
+            for line in f:
+                if line.split(",")[9] in sampleDico[sampleName]:
+                    sampleDico[sampleName][line.split(",")[9]] += int(
+                        line.split(",")[5].split(".")[0])  # attention arrondir
+            f.close()
+
+        # mettre none à la place de 0 et dans le heatmap hoverongaps = False
+
+        data = []
+        for virus in virusNameList:
+            valueList = []
+            for sample in sampleNameList:
+                if sampleDico[sample][virus] > 0:
+                  valueList.append(sampleDico[sample][virus])
+                else:
+                  valueList.append("none")
+            data.append(valueList)
+        print(data)
+
+        fig.add_trace(go.Heatmap(z=data, name=str(genus),
+                                 hovertemplate='Coverage: %{z} %' + '<br>Virus: %{y}' + '<br>Sample: %{x}',
+                                 y=virusNameList,
+                                 x=sampleNameList,
+                                 ), n, 1)
+    fig.data[0].update(zmin=50, zmax=100)
+    fig.write_html("file.html")
+    # fig.update_xaxes(side="top")
+    fig.show()
+
+
+
+
+
+
+
+
+
+
+
+
+    '''projectCsv = open(pathData + "/USERDATA/" + projectSelected + "/project.csv", "w")
 
 
     text2save=""
@@ -512,7 +625,7 @@ def dataA():
         except:
          pass
     projectCsv.write(text2save)
-    projectCsv.close
+    projectCsv.close'''
 
 def default():
 
@@ -542,105 +655,6 @@ def default():
     )
     enter_button.place(x=380, y=40)           #analyze
 
-'''def analyse():
-
-    global fastq1Path
-    global fastq2Path
-    global fastq1
-    global fastq2
-    global fq1
-    global fq2
-    global sampleList
-    global projectSelected
-    global sampleUniq
-    global yAdd
-    global pathLastDir
-    global pairedLabel
-    global text1Label
-    global text2Label
-    global minion
-    global pathData
-
-    projectSelected = cb1.get()
-    # test if project exist otherwise mk directory
-
-    if not os.path.exists(pathData + "/USERDATA/" + projectSelected):
-        os.mkdir(pathData + "/USERDATA/" + projectSelected)
-        log = open(pathData + "/LOG/log.txt", "a")
-        log.write("Project: USERDATA/" + projectSelected + "added" + "\n")
-        log.close()
-
-    for widgets in main.winfo_children():
-        widgets.destroy()
-    topButton()
-
-    minion = tk.IntVar(main, 0)  # 1 if Nanopore data 0 otherwise         # The check mark box
-    minion.set(0)
-
-    yAdd = 200
-
-    sampleUniq = set(listdir(pathData + "/USERDATA/" + projectSelected + "/"))
-
-    open_button_fq1 = ttk.Button(
-        main,
-        text='Select Fastq File 1',
-        command=select_file1
-    )
-
-    open_button_fq2 = ttk.Button(
-        main,
-        text='Select Fastq File 2',
-        command=select_file2
-    )
-
-    add_sample_button = ttk.Button(
-        main,
-        text='Add',
-        command=add_sample
-    )
-
-    run_button = ttk.Button(
-        main,
-        text='Run',
-        command=run
-    )
-
-    # checkbox
-
-    minion_check = ttk.Checkbutton(
-        main,
-        text="Oxford Nanopore",
-        variable=minion
-    )
-    fastq1Path = "<empty-mandatory>"
-    fastq2Path = "<empty>"
-
-    fastq1 = tk.StringVar()
-    fastq2 = tk.StringVar()
-
-    fastq1.set(fastq1Path)
-    fastq2.set(fastq2Path)
-
-    fq1 = ttk.Label(main, textvariable=fastq1, background="gray", foreground="black", relief="ridge")
-    fq2 = ttk.Label(main, textvariable=fastq2, background="yellow", foreground="black", relief="ridge")
-
-    pairedLabel = ttk.Label(main, text="(if paired)")
-
-    text1Label = ttk.Label(main, text="Add a sample:")
-    text2Label = ttk.Label(main, text="Sample list:")
-
-    text1Label.place(x=10, y=45)          # Add a sample
-    open_button_fq1.place(x=10, y=70)     #
-    open_button_fq2.place(x=10, y=105)    #
-    fq1.place(x=330, y=75)                #
-    fq2.place(x=330, y=110)               #
-    pairedLabel.place(x=220, y=110)       #
-    add_sample_button.place(x=10, y=155)  #
-    run_button.place(x=150, y=155)        #
-    text2Label.place(x=10, y=200)         #
-    minion_check.place(x=330, y=50)       # Oxford Nanopore
-
-######################################################################################################################'''
 
 def analyse_batch():
 

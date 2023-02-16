@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import plotly.express as px
+
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import glob
@@ -82,7 +82,7 @@ for genus in genusNameList:
   fig.add_trace( go.Heatmap(z=data,name=str(genus),
                 hovertemplate='Coverage: %{z} %'+'<br>Virus: %{y}'+'<br>Sample: %{x}',
                 y=virusNameList,
-                x=sampleNameList
+                x=sampleNameList,
                 ), n,1)
 
 
