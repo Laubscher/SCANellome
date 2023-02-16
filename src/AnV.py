@@ -147,7 +147,7 @@ def run():        #start the run -> mapping + analyse of all sample in the sampl
               print("Nanopore")
           elif s[2] != "<empty>":
               type = "Paired"
-              print("P-aired")
+              print("Paired")
           else:
               type="Single"
               print("single")
@@ -492,39 +492,76 @@ def resetA():
         widgets.destroy()
     topButton()
 
+def testCheck():
+    for sample in dicoSampleVar:
+        print(dicoSampleVar[sample].get())
+
+
 def dataA():
     global projectList
-    #global sampleUniq # list of all directory one by sample in USERDATA
+    global dicoSampleVar
+
     start()
     for widgets in main.winfo_children():
         widgets.destroy()
     topButton()
 
+    text0Label = ttk.Label(main, text="Selected project: ", foreground="gray")
+    text05Label = ttk.Label(main, text=projectSelected, foreground="darkorange1")
+    text05Label.place(x=510, y=5)  #
+    text0Label.place(x=350, y=5)  #
     # file name in a list, then read once all the file to make a set of virus name in all the project # ? devide by genus
     # then reread all the file to make a dictionary where all key are sampleID and values are
     # an other dictionary with keys as virusNames and values as nb of reads
 
-    #projectSelected = cb1.get()
+    #projectSelected = cb1.get()   #problème si on va de project selection à data sans passé par analyse on a pas le project mais si on laisse le get depuis analyse on perd le project
+    #if projectSelected =="":
+    #    cb1.get()
     sampleInProject = listdir(pathData + "/USERDATA/" + projectSelected)  # list of all sample in the project
 
-    dicoSampleCheck={}
+    dicoSampleCheck = {}
+    dicoSampleVar = {}
 
     for sample in sampleInProject:
-        dicoSampleCheck[sample] = ttk.Checkbutton(
+
+        dicoSampleVar[sample] = tk.IntVar(main, 0)               #variable for checkbox one for each sample in a dico
+        dicoSampleVar[sample].set(1)                             #we don't know the key in advance so loop in a dico
+        dicoSampleCheck[sample] = ttk.Checkbutton(               #same for the check button it self
         main,
         text=str(sample),
-        variable=sample
+        variable=dicoSampleVar[sample],
+        command=testCheck                                        # useless
         )
+        print(str(sample))
 
-    y1=30
+    y1=90
     for i in dicoSampleCheck:
         y1+=20
         dicoSampleCheck[i].place(x=30, y=y1)
 
 
+    grid_button = ttk.Button(
+        main,
+        text='Display selected samples',
+        command=grid
+    )
+    grid_button.place(x=30, y=60)
+
+
+def grid():
+    global projectList
+    global dicoSampleVar
+
     print(projectSelected)
     fileList0 = glob.glob(pathData + "/USERDATA/" + projectSelected +"/*/species.csv")
+
     print(fileList0)
+    print(dicoSampleVar)
+    for sample in dicoSampleVar:
+        if dicoSampleVar[sample].get() == 0:
+            fileList0.remove(pathData + "/USERDATA/" + projectSelected +"/" + sample + "/species.csv")
+    print(fileList0)
+
     sampleDico = {}
 
     genusNameSet = set()
@@ -532,6 +569,7 @@ def dataA():
     sampleNameSet = set()
 
     fileList=[]
+
     for file in fileList0:
         print(file)
         f = open(file, "r")
@@ -546,7 +584,7 @@ def dataA():
           fileList.append(file)
         f.close()
 
-    # les fichiers vide sont exlue de la liste des samples On peut les inclures faut récuperer le nom et mettre none partour
+    # les fichiers vide sont exclue de la liste des samples On peut les inclures faut récuperer le nom et mettre none partour
 
 
     if fileList==[]:
@@ -660,7 +698,6 @@ def default():
         command=analyse_batch
     )
     enter_button.place(x=380, y=40)           #analyze
-
 
 def analyse_batch():
 
