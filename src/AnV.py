@@ -505,7 +505,23 @@ def dataA():
     # an other dictionary with keys as virusNames and values as nb of reads
 
     #projectSelected = cb1.get()
-    #sampleInProject = listdir(pathData + "/USERDATA/" + projectSelected)  # list of all sample in the project
+    sampleInProject = listdir(pathData + "/USERDATA/" + projectSelected)  # list of all sample in the project
+
+    dicoSampleCheck={}
+
+    for sample in sampleInProject:
+        dicoSampleCheck[sample] = ttk.Checkbutton(
+        main,
+        text=str(sample),
+        variable=sample
+        )
+
+    y1=30
+    for i in dicoSampleCheck:
+        y1+=20
+        dicoSampleCheck[i].place(x=30, y=y1)
+
+
     print(projectSelected)
     fileList0 = glob.glob(pathData + "/USERDATA/" + projectSelected +"/*/species.csv")
     print(fileList0)
@@ -600,16 +616,6 @@ def dataA():
     fig.write_html("file.html")
     # fig.update_xaxes(side="top")
     fig.show()
-
-
-
-
-
-
-
-
-
-
 
 
     '''projectCsv = open(pathData + "/USERDATA/" + projectSelected + "/project.csv", "w")
