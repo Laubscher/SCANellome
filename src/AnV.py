@@ -22,7 +22,6 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import glob
 
-
 # The software window
 #main = tk.Tk()
 main = ThemedTk(theme="ubuntu", background=True, className="AnV v. 0.0.3")
@@ -69,7 +68,6 @@ def start():   # start is a function that check or make the file structure for t
       main.iconphoto(False, icon)
   except:
       pass
-
 
   #####################################
   #               log                 #
@@ -222,7 +220,6 @@ def mapping(pathToFastq, db, nameS, type, pathToFastq2):
 
       #fastq2
       map1Fastq(pathToFastq2, genome_ref_covered, a)
-
 
     else:
       map1Fastq(pathToFastq, genome_ref_covered, a)
@@ -500,11 +497,24 @@ def testCheck():
 def dataA():
     global projectList
     global dicoSampleVar
+    global projectSelected
+
+    try:
+      projectSelected = cb1.get()
+    except:
+      pass
 
     start()
     for widgets in main.winfo_children():
         widgets.destroy()
     topButton()
+
+
+    # test if project exist otherwise mk directory
+    if projectSelected == "" :
+        projectSelected="default"
+    if not os.path.exists(pathData + "/USERDATA/" + projectSelected):
+        tk.messagebox.showinfo("Error..", "Error " + projectSelected + "do not exist!")
 
     text0Label = ttk.Label(main, text="Selected project: ", foreground="gray")
     text05Label = ttk.Label(main, text=projectSelected, foreground="darkorange1")
@@ -514,9 +524,6 @@ def dataA():
     # then reread all the file to make a dictionary where all key are sampleID and values are
     # an other dictionary with keys as virusNames and values as nb of reads
 
-    #projectSelected = cb1.get()   #problème si on va de project selection à data sans passé par analyse on a pas le project mais si on laisse le get depuis analyse on perd le project
-    #if projectSelected =="":
-    #    cb1.get()
     sampleInProject = listdir(pathData + "/USERDATA/" + projectSelected)  # list of all sample in the project
 
     dicoSampleCheck = {}
@@ -548,19 +555,19 @@ def dataA():
     grid_button.place(x=30, y=60)
 
 
+
+
+
+
 def grid():
     global projectList
     global dicoSampleVar
 
-    print(projectSelected)
     fileList0 = glob.glob(pathData + "/USERDATA/" + projectSelected +"/*/species.csv")
 
-    print(fileList0)
-    print(dicoSampleVar)
     for sample in dicoSampleVar:
         if dicoSampleVar[sample].get() == 0:
             fileList0.remove(pathData + "/USERDATA/" + projectSelected +"/" + sample + "/species.csv")
-    print(fileList0)
 
     sampleDico = {}
 
@@ -588,17 +595,18 @@ def grid():
 
 
     if fileList==[]:
-        print("No anellovirus detected")  #TODO: pop up windows
-    print(fileList)
-    sampleNameList = list(sampleNameSet)
-    genusNameList = sorted(list(genusNameSet))
+        tk.messagebox.showinfo("No detection..", "None Anellovirus detected in any selected sample.")
+        print("No anellovirus detected")
+    else:
+      sampleNameList = list(sampleNameSet)
+      genusNameList = sorted(list(genusNameSet))
 
     # virusNameSet.remove('Virus')
 
-    fig = make_subplots(len(genusNameList), 1)  # make one subplot for each genus
-    n = 0  # counter n-ème subplot
+      fig = make_subplots(len(genusNameList), 1)  # make one subplot for each genus
+      n = 0  # counter n-ème subplot
 
-    for genus in genusNameList:
+      for genus in genusNameList:
         n += 1
         virusNameSet = set()
         for file in fileList:
@@ -650,10 +658,10 @@ def grid():
                                  y=virusNameList,
                                  x=sampleNameList,
                                  ), n, 1)
-    fig.data[0].update(zmin=50, zmax=100)
-    fig.write_html("file.html")
-    # fig.update_xaxes(side="top")
-    fig.show()
+      fig.data[0].update(zmin=50, zmax=100)
+      fig.write_html("file.html")
+      # fig.update_xaxes(side="top")
+      fig.show()
 
 
     '''projectCsv = open(pathData + "/USERDATA/" + projectSelected + "/project.csv", "w")
