@@ -606,9 +606,9 @@ def grid():
       fig = make_subplots(len(genusNameList), 1)  # make one subplot for each genus
       n = 0  # counter n-ème subplot
 
+      clb = {}  # dictionary for colorbar gestion
       #get nb virus by genus in
       listLenVirusByGenus=[]
-
       for genus in genusNameList:
         n += 1
         virusNameSet = set()
@@ -644,7 +644,7 @@ def grid():
                         line.split(",")[5].split(".")[0])  # attention arrondir
             f.close()
 
-        # mettre none à la place de 0 et dans le heatmap hoverongaps = False
+        
 
         data = []
         for virus in virusNameList:
@@ -653,28 +653,30 @@ def grid():
                 if sampleDico[sample][virus] > 0:
                   valueList.append(sampleDico[sample][virus])
                 else:
-                  valueList.append("none")
+                  valueList.append("none")                              # none à la place de 0 et dans le heatmap hoverongaps = False pour pas avoir devaleur par default 
             data.append(valueList)
         print(data)
 
-        fig.add_trace(go.Heatmap(z=data, name=str(genus),
+        fig.add_trace(go.Heatmap(z=data, name=str(genus),colorscale= [[0.5, 'whitesmoke'], [0.6, 'limegreen'], [0.67, 'tomato'], [1, 'teal']],
                                  hovertemplate='Coverage: %{z} %' + '<br>Virus: %{y}' + '<br>Sample: %{x}',
                                  y=virusNameList,
                                  x=sampleNameList,
-                                 #xgap=45,
-                                 #ygap=100,
+                                 zmin=0,
+                                 zmax=100,
+
 
                                  ), n, 1)
-        fig.data[0].update(zmin=50, zmid=51, zmax=100)
+
+        fig.data[0].update(zmin=50, zmid=51, zmax=100 )
 
         fig.update_coloraxes(showscale=False)
+        #colorbar ?
 
-
-      w= len(sampleNameList) * 100
-
-      h= max(listLenVirusByGenus) * len(genusNameList) * 25
+      w= 200 + (len(sampleNameList) * 100)
+      h= 200 + max(listLenVirusByGenus) * len(genusNameList) * 25
 
       fig.update_layout(
+
           autosize=False,
           width=w,
           height=h,
@@ -687,6 +689,8 @@ def grid():
           ),
           paper_bgcolor="LightSteelBlue",
       )
+
+      fig.update_traces(showscale=False)
       fig.write_html("file.html")
       # fig.update_xaxes(side="top")
       fig.show()
