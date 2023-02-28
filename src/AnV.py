@@ -594,6 +594,8 @@ def grid():
     # les fichiers vide sont exclue de la liste des samples On peut les inclures faut récuperer le nom et mettre none partour
 
 
+
+
     if fileList==[]:
         tk.messagebox.showinfo("No detection..", "None Anellovirus detected in any selected sample.")
         print("No anellovirus detected")
@@ -657,7 +659,7 @@ def grid():
             data.append(valueList)
         print(data)
 
-        fig.add_trace(go.Heatmap(z=data, name=str(genus),colorscale= [[0.5, 'whitesmoke'], [0.6, 'limegreen'], [0.67, 'tomato'], [1, 'teal']],
+        fig.add_trace(go.Heatmap(z=data, name=str(genus),colorscale= [[0, 'whitesmoke'], [0.33, '#fad146'], [0.66, 'orange'], [1, 'crimson']],
                                  hovertemplate='Coverage: %{z} %' + '<br>Virus: %{y}' + '<br>Sample: %{x}',
                                  y=virusNameList,
                                  x=sampleNameList,
@@ -670,7 +672,7 @@ def grid():
         fig.data[0].update(zmin=50, zmid=51, zmax=100 )
 
         fig.update_coloraxes(showscale=False)
-        #colorbar ?
+
 
       w= 200 + (len(sampleNameList) * 100)
       h= 200 + max(listLenVirusByGenus) * len(genusNameList) * 25
@@ -687,7 +689,7 @@ def grid():
               t=100,
               pad=4
           ),
-          paper_bgcolor="LightSteelBlue",
+          paper_bgcolor="lightgrey",
       )
 
       fig.update_traces(showscale=False)
