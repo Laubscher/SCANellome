@@ -24,7 +24,7 @@ import glob
 
 # The software window
 #main = tk.Tk()
-main = ThemedTk(theme="ubuntu", background=True, className="AnV v. 0.0.3")
+main = ThemedTk(theme="ubuntu", background=True, className="AnV v. 0.0.4")
 
 main.title('                                                                      AnV                                                                         v. 0.0.3')
 main.geometry("800x500")
@@ -123,7 +123,6 @@ def start():   # start is a function that check or make the file structure for t
 
   sampleList = []
 
-
 def run():        #start the run -> mapping + analyse of all sample in the sample list, throws an error if mapping fail
     global pb
     global main
@@ -191,6 +190,47 @@ def map1Fastq(pathToFastq, genome_ref_covered, a):
             for i in range(hit.r_st, hit.r_en):             # r_st  = ref start match, r_en -> end
                 genome_ref_covered[mgRef][0][i] += 1
 
+
+def map2sam(pathToFastq, genome_ref_covered, a, nameS):
+    print("map4consensus")
+    print(pathToFastq)
+    generator = mp.fastx_read(pathToFastq)
+    fichierSAM = open(pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + ".sam", "w")
+
+    fichierHEADER = open(pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + ".ham", "w")
+    fichierHEADER.write("@HD	VN:1.0	SO:coordinate\n")
+    reflist=[]
+    phred = "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"
+
+
+    for name, seq, qual in generator:
+        for hit in a.map(seq):
+            if hit.ctg not in reflist:
+              fichierHEADER.write("@SQ	SN:" + hit.ctg + "	LN:" + str(hit.ctg_len) + "\n")
+              reflist.append(hit.ctg)
+            print(hit.strand)
+            if hit.strand == 1:
+              fichierSAM.write(name + "\t0\t" + hit.ctg + "\t" + str(hit.r_st) + "\t" + str(hit.mapq)+"\t" + str(hit.cigar_str) + "\t" + "*" + "\t" + "0" + "\t" + str( hit.blen) + "\t" + seq[hit.q_st:hit.q_en] + "\t" + phred[hit.q_st:hit.q_en] + "\n")
+
+            #fichierSAM.write(name + "\t0\t" + hit.ctg +"\t"+ str(hit.r_st)+"\t" + str(hit.mapq)+"\t" +hit.cigar+"\t" + "x"+"\t" + "x"+"\t" + str( hit.r_en -hit.r_st)+"\t" + seq+"\t" + seq+"\n")
+    fichierSAM.close()
+
+    '''
+            mgRef = .split(",")[0]  # if not in dico make a new entry
+            if mgRef in genome_ref_covered:
+                pass
+            else:
+                genome_ref_covered[mgRef] = [[], 0,
+                                             hit.ctg_len]  # list [0] -> depth for each pos (incrementation), [2] lenref, [1] count of reads (incrementation)
+                for k in range(0, hit.ctg_len):
+                    genome_ref_covered[mgRef][0].append(0)  # populate depth with 0
+
+            genome_ref_covered[mgRef][1] += 1
+            for i in range(hit.r_st, hit.r_en):  # r_st  = ref start match, r_en -> end
+                genome_ref_covered[mgRef][0][i] += 1 
+            '''
+
+
 def mapping(pathToFastq, db, nameS, type, pathToFastq2):
     global pb
     genome_ref_covered = dict()
@@ -227,6 +267,10 @@ def mapping(pathToFastq, db, nameS, type, pathToFastq2):
 
       pb['value'] += 40
       main.update()
+
+    #slow mode get consensus for tree
+    map2sam(pathToFastq, genome_ref_covered, a, nameS)
+
 
     pb['value'] += 58
     main.update()
@@ -434,8 +478,6 @@ def add_sample():
     fq2.config(background="yellow", foreground="black")
 
 #######################################################################################################################'''
-
-
 def file_save():
     nameNewCsv = fd.asksaveasfile(mode='w', defaultextension=".csv")
     text2save="Sample Name, ACC. NUMBER, Reads, ref_len, cov, %cov, depth (median), GENUS, GROUP, SPECIES, GENOTYPE, HOST\n"
@@ -492,7 +534,6 @@ def resetA():
 def testCheck():
     for sample in dicoSampleVar:
         print(dicoSampleVar[sample].get())
-
 
 def dataA():
     global projectList
@@ -554,11 +595,6 @@ def dataA():
     )
     grid_button.place(x=30, y=60)
 
-
-
-
-
-
 def grid():
     global projectList
     global dicoSampleVar
@@ -592,8 +628,6 @@ def grid():
         f.close()
 
     # les fichiers vide sont exclue de la liste des samples On peut les inclures faut récuperer le nom et mettre none partour
-
-
 
 
     if fileList==[]:
