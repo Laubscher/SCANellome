@@ -21,6 +21,8 @@ from tkinter import Menu
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import glob
+import pysam
+
 
 # The software window
 #main = tk.Tk()
@@ -195,10 +197,11 @@ def map2sam(pathToFastq, genome_ref_covered, a, nameS):
     print("map4consensus")
     print(pathToFastq)
     generator = mp.fastx_read(pathToFastq)
-    fichierSAM = open(pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + ".sam", "w")
+    fichierSAM1 = open(pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + "1.sam", "w")
+    fichierfastq2 = open(pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + "_2.fastq", "w")
 
-    fichierHEADER = open(pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + ".ham", "w")
-    fichierHEADER.write("@HD	VN:1.0	SO:coordinate\n")
+    fichierHEADER = open(pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + ".sam", "w")
+    #fichierHEADER.write("@HD	VN:1.0	SO:coordinate\n")
     reflist=[]
     phred = "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"
 
@@ -208,12 +211,44 @@ def map2sam(pathToFastq, genome_ref_covered, a, nameS):
             if hit.ctg not in reflist:
               fichierHEADER.write("@SQ	SN:" + hit.ctg + "	LN:" + str(hit.ctg_len) + "\n")
               reflist.append(hit.ctg)
-            print(hit.strand)
-            if hit.strand == 1:
-              fichierSAM.write(name + "\t0\t" + hit.ctg + "\t" + str(hit.r_st) + "\t" + str(hit.mapq)+"\t" + str(hit.cigar_str) + "\t" + "*" + "\t" + "0" + "\t" + str( hit.blen) + "\t" + seq[hit.q_st:hit.q_en] + "\t" + phred[hit.q_st:hit.q_en] + "\n")
+            if hit.strand == 1:    # orientation sequénce +1
 
+              fichierSAM1.write(name + "\t0\t" + hit.ctg + "\t" + str(hit.r_st+1) + "\t" + str(hit.mapq)+"\t" + str(hit.cigar_str) + "\t" + "*" + "\t" + "0" + "\t" + str( hit.blen) + "\t" + seq[hit.q_st:hit.q_en] + "\t" + phred[hit.q_st:hit.q_en] + "\n")
+            if hit.strand == -1:
+              print(hit.strand)
+              # complement strand
+              seq = seq.replace("A", "t").replace("C", "g").replace("T", "a").replace("G", "c")
+              seq = seq.upper()
+              seq = seq[::-1]
+              fichierfastq2.write("@"+name +"\n"+ seq[hit.q_st:hit.q_en]+ "\n" + "+" + "\n" + phred[hit.q_st:hit.q_en] + "\n")
             #fichierSAM.write(name + "\t0\t" + hit.ctg +"\t"+ str(hit.r_st)+"\t" + str(hit.mapq)+"\t" +hit.cigar+"\t" + "x"+"\t" + "x"+"\t" + str( hit.r_en -hit.r_st)+"\t" + seq+"\t" + seq+"\n")
+    fichierSAM1.close()
+    fichierfastq2.close()
+    fichierHEADER.close()
+
+    fichierSAM1=open(pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + "1.sam", "r")
+
+
+    #le fichier header devient le fichier sam car on lui append à la fin
+    fichierSAM=open(pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + ".sam", "a")    # open the file in append mode
+
+    for lane in fichierSAM1:
+        fichierSAM.write(lane)
+    fichierSAM1.close()
     fichierSAM.close()
+
+
+    #ham + sam -> sam
+    #variable pour sam name
+    PATH=pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/"
+
+    SAM=PATH + nameS + ".sam"
+
+    BAM=PATH + nameS + ".bam"
+
+    FASTA = PATH + nameS + ".fasta"
+    pysam.sort("-o", BAM, SAM)
+    pysam.consensus("-o", FASTA, BAM)
 
     '''
             mgRef = .split(",")[0]  # if not in dico make a new entry
