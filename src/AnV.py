@@ -23,7 +23,6 @@ from plotly.subplots import make_subplots
 import glob
 import pysam
 
-
 # The software window
 #main = tk.Tk()
 main = ThemedTk(theme="ubuntu", background=True, className="AnV v. 0.0.4")
@@ -152,7 +151,6 @@ def run():        #start the run -> mapping + analyse of all sample in the sampl
               print("single")
           mapping(s[1], pathData + "/DATABASE/Anello.fasta", s[0], type, s[2])
 
-
         except:
           log.write("Error during mapping.. sample:" + str(s[0]) + "\n files may be corrupted!" + "\n")
           tk.messagebox.showinfo("Error..", "Error during mapping.. sample:" + str(s[0]) + "\n files may be corrupted!")
@@ -165,10 +163,18 @@ def run():        #start the run -> mapping + analyse of all sample in the sampl
 
     save_button = ttk.Button(
         main,
-        text='Save',
+        text='Save CSV',
         command=file_save
     )
     save_button.place(x=150, y=195)
+
+    save2_button = ttk.Button(
+        main,
+        text='Save FASTA',
+        command=fasta_save
+    )
+
+    save2_button.place(x=290, y=195)
     reset_button.destroy()
     tk.messagebox.showinfo("Analysis completed", "Analysis completed" + "\n")
     log.close()
@@ -192,7 +198,6 @@ def map1Fastq(pathToFastq, genome_ref_covered, a):
             for i in range(hit.r_st, hit.r_en):             # r_st  = ref start match, r_en -> end
                 genome_ref_covered[mgRef][0][i] += 1
 
-
 def map2sam(pathToFastq, genome_ref_covered, a, nameS):
     print("map4consensus")
     print(pathToFastq)
@@ -203,31 +208,45 @@ def map2sam(pathToFastq, genome_ref_covered, a, nameS):
     fichierHEADER = open(pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + ".sam", "w")
     #fichierHEADER.write("@HD	VN:1.0	SO:coordinate\n")
     reflist=[]
-    phred = "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"
 
-
+    phred = "i"*999999
     for name, seq, qual in generator:
         for hit in a.map(seq):
             if hit.ctg not in reflist:
               fichierHEADER.write("@SQ	SN:" + hit.ctg + "	LN:" + str(hit.ctg_len) + "\n")
               reflist.append(hit.ctg)
-            if hit.strand == 1:    # orientation sequénce +1
+            if hit.strand == 1:    # orientation séquence +1
 
               fichierSAM1.write(name + "\t0\t" + hit.ctg + "\t" + str(hit.r_st+1) + "\t" + str(hit.mapq)+"\t" + str(hit.cigar_str) + "\t" + "*" + "\t" + "0" + "\t" + str( hit.blen) + "\t" + seq[hit.q_st:hit.q_en] + "\t" + phred[hit.q_st:hit.q_en] + "\n")
             if hit.strand == -1:
-              print(hit.strand)
+
               # complement strand
               seq = seq.replace("A", "t").replace("C", "g").replace("T", "a").replace("G", "c")
               seq = seq.upper()
               seq = seq[::-1]
-              fichierfastq2.write("@"+name +"\n"+ seq[hit.q_st:hit.q_en]+ "\n" + "+" + "\n" + phred[hit.q_st:hit.q_en] + "\n")
+              #fichierfastq2.write("@"+name +"\n"+ seq[hit.q_st:hit.q_en]+ "\n" + "+" + "\n" + phred[hit.q_st:hit.q_en] + "\n")
             #fichierSAM.write(name + "\t0\t" + hit.ctg +"\t"+ str(hit.r_st)+"\t" + str(hit.mapq)+"\t" +hit.cigar+"\t" + "x"+"\t" + "x"+"\t" + str( hit.r_en -hit.r_st)+"\t" + seq+"\t" + seq+"\n")
     fichierSAM1.close()
     fichierfastq2.close()
     fichierHEADER.close()
 
-    fichierSAM1=open(pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + "1.sam", "r")
+    fichierSAM = open(pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + ".sam", "a")  # open the file in append mode
 
+    path2FastqTemp=pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + "_2.fastq"
+    # on reprocess avec reverse complement car bug du -1
+    generator = mp.fastx_read(path2FastqTemp)
+    for name, seq, qual in generator:
+        for hit in a.map(seq):
+            print(hit.strand)
+            if hit.strand == 1:  # orientation séquence +1
+
+                fichierSAM.write( name + "\t0\t" + hit.ctg + "\t" + str(hit.r_st + 1) + "\t" + str(hit.mapq) + "\t" + str(hit.cigar_str) + "\t" + "*" + "\t" + "0" + "\t" + str(hit.blen) + "\t" + seq[hit.q_st:hit.q_en] + "\t" + phred[hit.q_st:hit.q_en] + "\n")
+
+
+    fichierSAM.close()
+
+
+    fichierSAM1=open(pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + "1.sam", "r")
 
     #le fichier header devient le fichier sam car on lui append à la fin
     fichierSAM=open(pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + ".sam", "a")    # open the file in append mode
@@ -237,9 +256,9 @@ def map2sam(pathToFastq, genome_ref_covered, a, nameS):
     fichierSAM1.close()
     fichierSAM.close()
 
-
     #ham + sam -> sam
     #variable pour sam name
+
     PATH=pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/"
 
     SAM=PATH + nameS + ".sam"
@@ -264,7 +283,6 @@ def map2sam(pathToFastq, genome_ref_covered, a, nameS):
             for i in range(hit.r_st, hit.r_en):  # r_st  = ref start match, r_en -> end
                 genome_ref_covered[mgRef][0][i] += 1 
             '''
-
 
 def mapping(pathToFastq, db, nameS, type, pathToFastq2):
     global pb
@@ -299,13 +317,12 @@ def mapping(pathToFastq, db, nameS, type, pathToFastq2):
     else:
       map1Fastq(pathToFastq, genome_ref_covered, a)
 
-
       pb['value'] += 40
       main.update()
 
-    #slow mode get consensus for tree
-    map2sam(pathToFastq, genome_ref_covered, a, nameS)
-
+    if makeConsensus.get() == 1:
+    #slow mode get consensus
+      map2sam(pathToFastq, genome_ref_covered, a, nameS)
 
     pb['value'] += 58
     main.update()
@@ -404,7 +421,7 @@ def add_sample_batch(fastq1Path):
           fastq2Path = fastq1Path.split("_R1_001.fastq")[0] + "_R2_001.fastq"
           sampleName = fastq1Path.split("/")[-1].split("_R1_001.fastq")[0]
     else :
-        fastq2Path = "<empty>"  # Todo add it if R2 found (and /or check box)
+        fastq2Path = "<empty>"
         sampleName = fastq1Path.split("/")[-1].split(".fastq")[0]
     if isSample:
         suffix = fastq1Path.split(".")[-1]
@@ -527,6 +544,54 @@ def file_save():
     nameNewCsv.write(text2save)
     nameNewCsv.close
 
+def fasta_save():
+
+    nameNewFasta = fd.asksaveasfile(mode='w', defaultextension=".FASTA")
+
+    text2save=""
+    for s in sampleList:
+        print(s)
+        fastaDico={}
+        try:
+            fasta=open(pathData + "/USERDATA/" + projectSelected + "/" + s[0] + "/" + s[0]+".fasta", "r")
+            print(pathData + "/USERDATA/" + projectSelected + "/" + s[0] + "/" + s[0]+".fasta")
+            for lane in fasta:
+              if lane[0]==">":
+                  ac=lane.rstrip().split(">")[1]
+                  fastaDico[ac] = ""
+              else:
+                  fastaDico[ac]+=lane  #.rstrip()
+            fasta.close()
+        except:
+            pass
+        headerDico={}
+        try:
+            fichier = open(pathData + "/USERDATA/" + projectSelected + "/" + s[0] + "/species.csv", "r")    # if error during mapping file will not existe
+            for lane in fichier:
+              try:
+                ac=lane.split(",")[1].split(" ")[1]
+
+                headerDico[ac]=lane.split(",")[9].split(" ")[1]+"_"+lane.split(",")[0]+"_"+lane.split(",")[7].split(" ")[1]
+              except:
+                pass
+            fichier.close()
+
+        except:
+           pass
+
+        for ac in headerDico:
+
+            try:
+              text2save += ">" + str(headerDico[ac]) +"\n" + str(fastaDico[ac]) +"\n"
+            except:
+              pass
+    nameNewFasta.write(text2save)
+
+
+
+
+    nameNewFasta.close
+
 def deleteA():
     #TODO add a confirmation window
     global sampleUniq
@@ -584,7 +649,6 @@ def dataA():
     for widgets in main.winfo_children():
         widgets.destroy()
     topButton()
-
 
     # test if project exist otherwise mk directory
     if projectSelected == "" :
@@ -715,7 +779,6 @@ def grid():
                         line.split(",")[5].split(".")[0])  # attention arrondir
             f.close()
 
-        
 
         data = []
         for virus in virusNameList:
@@ -825,7 +888,7 @@ def analyse_batch():
     global illuminaSE
     global illuminaPE
     global reset_button
-
+    global makeConsensus
     global pathData
 
     projectSelected = cb1.get()
@@ -850,6 +913,9 @@ def analyse_batch():
 
     illuminaPE = tk.IntVar(main, 0)  # Paired End
     illuminaPE.set(0)
+
+    makeConsensus = tk.IntVar(main, 0)  # if check make consensus
+    makeConsensus.set(0)
 
     yAdd = 250    # height
 
@@ -890,6 +956,12 @@ def analyse_batch():
         command=excludeP
     )
 
+    consensus_check = ttk.Checkbutton(
+        main,
+        text="genarate FASTA consensus [slow mode]",
+        variable=makeConsensus,
+    )
+
     reset_button = ttk.Button(
         main,
         text='Reset',
@@ -902,12 +974,14 @@ def analyse_batch():
     text05Label.place(x=510, y=5)  #
     text0Label.place(x=350, y=5)  #
     text1Label.place(x=10, y=45)         # Add a sample
-    open_button.place(x=10, y=140)       #
+    open_button.place(x=10, y=70)       #
     run_button.place(x=10, y=195)        #
     text2Label.place(x=10, y=240)        #
-    minion_check.place(x=10, y=70)       # Oxford Nanopore
-    illuminaSE_check.place(x=10, y=90)
-    illuminaPE_check.place(x=10, y=110)
+    minion_check.place(x=10, y=110)       # Oxford Nanopore
+    illuminaSE_check.place(x=10, y=130)
+    illuminaPE_check.place(x=10, y=150)
+    consensus_check.place(x=10, y=170)
+
     reset_button.place(x=150, y=195)            #reset
 
 def excludeM():
@@ -927,7 +1001,6 @@ def excludeP():
 #######################################################################################################################
 
 # button
-
 def topButton():
 
   # mini menubar
@@ -961,7 +1034,6 @@ def topButton():
   view.menu.add_command(label='Data', command=dataA)
 
 # run the application
-
 default()
 
 main.mainloop()
