@@ -173,8 +173,8 @@ def run():        #start the run -> mapping + analyse of all sample in the sampl
         text='Save FASTA',
         command=fasta_save
     )
-
-    save2_button.place(x=290, y=195)
+    if makeConsensus.get() == 1:
+      save2_button.place(x=290, y=195)
     reset_button.destroy()
     tk.messagebox.showinfo("Analysis completed", "Analysis completed" + "\n")
     log.close()
@@ -209,7 +209,7 @@ def map2sam(pathToFastq, genome_ref_covered, a, nameS):
     #fichierHEADER.write("@HD	VN:1.0	SO:coordinate\n")
     reflist=[]
 
-    phred = "i"*999999
+    phred = "6"*999999
     for name, seq, qual in generator:
         for hit in a.map(seq):
             if hit.ctg not in reflist:
@@ -269,6 +269,11 @@ def map2sam(pathToFastq, genome_ref_covered, a, nameS):
     pysam.sort("-o", BAM, SAM)
     pysam.consensus("-o", FASTA, BAM)
 
+    SAM1 =PATH + nameS + "1.sam"
+    os.remove(SAM1)
+    os.remove(BAM)
+    os.remove(SAM)
+    os.remove(path2FastqTemp)
     '''
             mgRef = .split(",")[0]  # if not in dico make a new entry
             if mgRef in genome_ref_covered:
@@ -825,7 +830,7 @@ def grid():
       )
 
       fig.update_traces(showscale=False)
-      fig.write_html("file.html")
+      fig.write_html("pathData + "/USERDATA/" + projectSelected +"/"file.html")
       # fig.update_xaxes(side="top")
       fig.show()
 
