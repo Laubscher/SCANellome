@@ -17,7 +17,7 @@ import base64
 import img
 from ttkthemes import ThemedTk
 from tkinter import Menu
-
+import webbrowser
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import glob
@@ -27,7 +27,7 @@ import pysam
 #main = tk.Tk()
 main = ThemedTk(theme="ubuntu", background=True, className="AnV v. 0.0.4")
 
-main.title('                                                                      AnV                                                                         v. 0.0.3')
+main.title('                                                                      AnV                                                                         v. 0.0.4')
 main.geometry("800x500")
 
 global pb
@@ -154,6 +154,8 @@ def run():        #start the run -> mapping + analyse of all sample in the sampl
         except:
           log.write("Error during mapping.. sample:" + str(s[0]) + "\n files may be corrupted!" + "\n")
           tk.messagebox.showinfo("Error..", "Error during mapping.. sample:" + str(s[0]) + "\n files may be corrupted!")
+          sampleList.remove(s)
+          os.rmdir(pathData + "/USERDATA/" + projectSelected + "/" + s[0])
           pb['value'] = 0
 
         else:
@@ -177,6 +179,7 @@ def run():        #start the run -> mapping + analyse of all sample in the sampl
       save2_button.place(x=290, y=195)
     reset_button.destroy()
     tk.messagebox.showinfo("Analysis completed", "Analysis completed" + "\n")
+
     log.close()
 
 def map1Fastq(pathToFastq, genome_ref_covered, a):
@@ -209,7 +212,7 @@ def map2sam(pathToFastq, genome_ref_covered, a, nameS):
     #fichierHEADER.write("@HD	VN:1.0	SO:coordinate\n")
     reflist=[]
 
-    phred = "6"*999999
+    phred = "B"*999999
     for name, seq, qual in generator:
         for hit in a.map(seq):
             if hit.ctg not in reflist:
@@ -435,7 +438,19 @@ def add_sample_batch(fastq1Path):
     # check if sample name is uniq
         if sampleName in sampleUniq:
           print("Sample name not uniq!!")
-          tk.messagebox.showinfo("Sorry can't add your sample..", '\n"' + sampleName + '"\n\nThe sample name already exist in this project.\n')
+          #tk.messagebox.showinfo("Sorry can't add your sample..", '\n"' + sampleName + '"\n\nThe sample name already exist in this project.\n')
+          if tk.messagebox.askokcancel("Can't add your sample..",'\n"' + sampleName + '"\n\nThe sample name already exist in this project.\n\n'+'Do you want to re analyze it?') == True:
+              shutil.rmtree(pathData + "/USERDATA/" + projectSelected + "/" + sampleName)
+              os.mkdir(pathData + "/USERDATA/" + projectSelected + "/" + sampleName)
+              sample = [sampleName, fastq1Path, fastq2Path, yAdd + 20, minion.get()]
+              sampleList.append(sample)
+              labelListSample = ttk.Label(main, text=sampleName)
+              yAdd += 20
+              labelListSample.place(x=10, y=yAdd)
+          else:
+              print(False)
+
+
 
         elif suffix != "fastq":
           print("Sample suffix is not fastq!!")
@@ -598,7 +613,7 @@ def fasta_save():
     nameNewFasta.close
 
 def deleteA():
-    #TODO add a confirmation window
+  if tk.messagebox.askokcancel("Warning..",'\n\nAre you sure you want to delete all data?\n\n') == True:
     global sampleUniq
     sampleUniq = []
     shutil.rmtree(pathData)
@@ -608,6 +623,7 @@ def deleteA():
     topButton()
 
 def deleteP():
+  if tk.messagebox.askokcancel("Warning..", '\n\nAre you sure you want to this project?\n\n') == True:
     global sampleUniq
     global projectSelected
     sampleUniq = []
@@ -830,9 +846,12 @@ def grid():
       )
 
       fig.update_traces(showscale=False)
-      fig.write_html("pathData + "/USERDATA/" + projectSelected +"/"file.html")
+      fig.write_html(pathData + "/USERDATA/" + projectSelected +"/file.html")
       # fig.update_xaxes(side="top")
-      fig.show()
+      new = 2  # open in a new tab, if possible
+      url=pathData + "/USERDATA/" + projectSelected +"/file.html"
+      webbrowser.open(url, new=new)
+      #fig.show()
 
 
     '''projectCsv = open(pathData + "/USERDATA/" + projectSelected + "/project.csv", "w")
@@ -893,6 +912,7 @@ def analyse_batch():
     global illuminaSE
     global illuminaPE
     global reset_button
+    global run_button
     global makeConsensus
     global pathData
 
@@ -972,6 +992,7 @@ def analyse_batch():
         text='Reset',
         command=resetA
     )
+
     text0Label = ttk.Label(main, text="Selected project: ", foreground="gray")
     text05Label = ttk.Label(main, text=projectSelected, foreground="darkorange1")
     text1Label = ttk.Label(main, text="Select samples to add:")
