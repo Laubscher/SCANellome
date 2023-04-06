@@ -25,9 +25,9 @@ import pysam
 
 # The software window
 #main = tk.Tk()
-main = ThemedTk(theme="ubuntu", background=True, className="AnV v. 0.0.4")
+main = ThemedTk(theme="ubuntu", background=True, className="AnV v. 0.0.5")
 
-main.title('                                                                      AnV                                                                         v. 0.0.4')
+main.title('                                                                      AnV                                                                         v. 0.0.5')
 main.geometry("800x500")
 
 global pb
@@ -691,7 +691,7 @@ def dataA():
     dicoSampleVar = {}
 
     for sample in sampleInProject:
-
+      if sample!="file.html":
         dicoSampleVar[sample] = tk.IntVar(main, 0)               #variable for checkbox one for each sample in a dico
         dicoSampleVar[sample].set(1)                             #we don't know the key in advance so loop in a dico
         dicoSampleCheck[sample] = ttk.Checkbutton(               #same for the check button it self
@@ -915,8 +915,10 @@ def analyse_batch():
     global run_button
     global makeConsensus
     global pathData
-
-    projectSelected = cb1.get()
+    try:
+      projectSelected = cb1.get()
+    except:
+      pass  #si pas sur une fenêtre ou il y ale combobox
     # test if project exist otherwise mk directory
     if projectSelected == "":
         projectSelected="default"
