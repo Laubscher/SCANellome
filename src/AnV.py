@@ -854,21 +854,6 @@ def grid():
       #fig.show()
 
 
-    '''projectCsv = open(pathData + "/USERDATA/" + projectSelected + "/project.csv", "w")
-
-
-    text2save=""
-    for s in sampleInProject:
-        try:   #if files in project
-            fichier = open(pathData + "/USERDATA/" + projectSelected + "/" + s[0] + "/species.csv", "r")
-            for lane in fichier.read():
-              text2save += lane
-            fichier.close()
-        except:
-         pass
-    projectCsv.write(text2save)
-    projectCsv.close'''
-
 def default():
 
     global projectSelected
