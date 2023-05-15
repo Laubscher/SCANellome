@@ -11,7 +11,6 @@ import tkinter as tk                      # graphic interface
 from tkinter import ttk
 from tkinter import filedialog as fd
 from tkinter.messagebox import showinfo
-#from tkinter import *
 import Dicodb                             # module that contain the database in a python dico
 import base64
 import img
@@ -24,10 +23,9 @@ import glob
 import pysam
 
 # The software window
-#main = tk.Tk()
-main = ThemedTk(theme="ubuntu", background=True, className="AnV v. 0.0.5")
+main = ThemedTk(theme="ubuntu", background=True, className="SCANellome v. 1.0.0")
 
-main.title('                                                                      AnV                                                                         v. 0.0.5')
+main.title('                                                                    SCANellome                                                                v. 1.0.0')
 main.geometry("800x500")
 
 global pb
@@ -218,7 +216,7 @@ def map2sam(pathToFastq, genome_ref_covered, a, nameS):
             if hit.ctg not in reflist:
               fichierHEADER.write("@SQ	SN:" + hit.ctg + "	LN:" + str(hit.ctg_len) + "\n")
               reflist.append(hit.ctg)
-            if hit.strand == 1:    # orientation séquence +1
+            if hit.strand == 1:    # orientation sequence +1
 
               fichierSAM1.write(name + "\t0\t" + hit.ctg + "\t" + str(hit.r_st+1) + "\t" + str(hit.mapq)+"\t" + str(hit.cigar_str) + "\t" + "*" + "\t" + "0" + "\t" + str( hit.blen) + "\t" + seq[hit.q_st:hit.q_en] + "\t" + phred[hit.q_st:hit.q_en] + "\n")
             if hit.strand == -1:
@@ -227,8 +225,6 @@ def map2sam(pathToFastq, genome_ref_covered, a, nameS):
               seq = seq.replace("A", "t").replace("C", "g").replace("T", "a").replace("G", "c")
               seq = seq.upper()
               seq = seq[::-1]
-              #fichierfastq2.write("@"+name +"\n"+ seq[hit.q_st:hit.q_en]+ "\n" + "+" + "\n" + phred[hit.q_st:hit.q_en] + "\n")
-            #fichierSAM.write(name + "\t0\t" + hit.ctg +"\t"+ str(hit.r_st)+"\t" + str(hit.mapq)+"\t" +hit.cigar+"\t" + "x"+"\t" + "x"+"\t" + str( hit.r_en -hit.r_st)+"\t" + seq+"\t" + seq+"\n")
     fichierSAM1.close()
     fichierfastq2.close()
     fichierHEADER.close()
@@ -236,12 +232,12 @@ def map2sam(pathToFastq, genome_ref_covered, a, nameS):
     fichierSAM = open(pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + ".sam", "a")  # open the file in append mode
 
     path2FastqTemp=pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + "_2.fastq"
-    # on reprocess avec reverse complement car bug du -1
+    # reprocess for -1 misclassified
     generator = mp.fastx_read(path2FastqTemp)
     for name, seq, qual in generator:
         for hit in a.map(seq):
             print(hit.strand)
-            if hit.strand == 1:  # orientation séquence +1
+            if hit.strand == 1:
 
                 fichierSAM.write( name + "\t0\t" + hit.ctg + "\t" + str(hit.r_st + 1) + "\t" + str(hit.mapq) + "\t" + str(hit.cigar_str) + "\t" + "*" + "\t" + "0" + "\t" + str(hit.blen) + "\t" + seq[hit.q_st:hit.q_en] + "\t" + phred[hit.q_st:hit.q_en] + "\n")
 
@@ -251,7 +247,7 @@ def map2sam(pathToFastq, genome_ref_covered, a, nameS):
 
     fichierSAM1=open(pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + "1.sam", "r")
 
-    #le fichier header devient le fichier sam car on lui append à la fin
+    #header + append sam
     fichierSAM=open(pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/" + nameS + ".sam", "a")    # open the file in append mode
 
     for lane in fichierSAM1:
@@ -260,7 +256,7 @@ def map2sam(pathToFastq, genome_ref_covered, a, nameS):
     fichierSAM.close()
 
     #ham + sam -> sam
-    #variable pour sam name
+    #variables for sam name
 
     PATH=pathData + "/USERDATA/" + projectSelected + "/" + nameS + "/"
 
@@ -277,20 +273,6 @@ def map2sam(pathToFastq, genome_ref_covered, a, nameS):
     os.remove(BAM)
     os.remove(SAM)
     os.remove(path2FastqTemp)
-    '''
-            mgRef = .split(",")[0]  # if not in dico make a new entry
-            if mgRef in genome_ref_covered:
-                pass
-            else:
-                genome_ref_covered[mgRef] = [[], 0,
-                                             hit.ctg_len]  # list [0] -> depth for each pos (incrementation), [2] lenref, [1] count of reads (incrementation)
-                for k in range(0, hit.ctg_len):
-                    genome_ref_covered[mgRef][0].append(0)  # populate depth with 0
-
-            genome_ref_covered[mgRef][1] += 1
-            for i in range(hit.r_st, hit.r_en):  # r_st  = ref start match, r_en -> end
-                genome_ref_covered[mgRef][0][i] += 1 
-            '''
 
 def mapping(pathToFastq, db, nameS, type, pathToFastq2):
     global pb
@@ -373,7 +355,7 @@ def mapping(pathToFastq, db, nameS, type, pathToFastq2):
     for sp in listSpecies:  # for each sp keep the one with the best coverage
         bestCov = 49
         for acc in dictSpecies[sp]:
-            if genome_ref_covered[acc][4] > bestCov:  # tie ?
+            if genome_ref_covered[acc][4] > bestCov:
                 keep = acc
                 bestCov = genome_ref_covered[acc][4]
         resultSp.add(keep)
@@ -406,13 +388,13 @@ def select_file_batch():
 
     for path in filenames:
         fastq1Path=str(path)
-        if fastq1Path.rstrip().split(".")[-1] == "fastq":           #delete this ?
+        if fastq1Path.rstrip().split(".")[-1] == "fastq":
             pass
         else:
-            pass # add a window error here
+            pass
         add_sample_batch(fastq1Path)
 
-    pathL = fastq1Path.split("/")           #for remember the path of the directory
+    pathL = fastq1Path.split("/")           #for keep the path of the directory
     pathL.pop()
     pathLastDir = "/".join(pathL)
 
@@ -438,7 +420,6 @@ def add_sample_batch(fastq1Path):
     # check if sample name is uniq
         if sampleName in sampleUniq:
           print("Sample name not uniq!!")
-          #tk.messagebox.showinfo("Sorry can't add your sample..", '\n"' + sampleName + '"\n\nThe sample name already exist in this project.\n')
           if tk.messagebox.askokcancel("Can't add your sample..",'\n"' + sampleName + '"\n\nThe sample name already exist in this project.\n\n'+'Do you want to re analyze it?') == True:
               shutil.rmtree(pathData + "/USERDATA/" + projectSelected + "/" + sampleName)
               os.mkdir(pathData + "/USERDATA/" + projectSelected + "/" + sampleName)
@@ -467,89 +448,6 @@ def add_sample_batch(fastq1Path):
 
     print(sampleList)
 
-'''############################ one by one ###############################################################################
-
-def select_file1():
-    global fastq1Path
-    global pathLastDir
-    filetypes = (
-        ('Fastq files', '*.fastq'),
-        ('All files', '*.*')
-    )
-    filename = fd.askopenfilename(
-        title='Open a file',
-        initialdir=pathLastDir,
-        filetypes=filetypes)
-
-    fastq1Path = str(filename)
-    print(fastq1Path)
-
-    fastq1.set(fastq1Path)
-    pathL = fastq1Path.split("/")
-    pathL.pop()
-    pathLastDir = "/".join(pathL)
-
-    if fastq1Path.rstrip().split(".")[-1] == "fastq":
-        fq1.config(background="darkorange1", foreground="white")
-    else:
-        fq1.config(background="yellow", foreground="black")
-
-def select_file2():
-    global fastq2Path
-    global pathLastDir
-    filetypes = (
-        ('Fastq files', '*.fastq'),
-        ('All files', '*.*')
-    )
-
-    filename = fd.askopenfilename(
-        title='Open a file',
-        initialdir=pathLastDir,
-        filetypes=filetypes)
-
-    fastq2Path = str(filename)
-
-    fastq2.set(fastq2Path)
-
-    pathL = fastq2Path.split("/")
-    pathL.pop()
-    pathLastDir = "/".join(pathL)
-
-    if fastq2Path.rstrip().split(".")[-1] == "fastq":
-        fq2.config(background="orange", foreground="white")
-    else:
-        fq2.config(background="yellow", foreground="black")
-
-def add_sample():
-    global yAdd
-    sampleName = fastq1Path.split("/")[-1].split(".fastq")[0]
-    # check if sample name is uniq
-    suffix  = fastq1Path.split(".")[-1]
-    # check if fastq
-
-    if sampleName in sampleUniq:
-        print("Sample name not uniq!!")
-        tk.messagebox.showinfo("Sorry can't add your sample..", "The sample name is not uniq!")
-
-    elif suffix != "fastq":
-        print("Sample suffix is not fastq!!")
-        tk.messagebox.showinfo("Sorry can't add your sample..", "The file type is not fastq!")
-
-    else:
-        os.mkdir(pathData + "/USERDATA/" + projectSelected + "/" + sampleName)
-        sample = [sampleName, fastq1Path, fastq2Path, yAdd + 20, minion.get()]
-        sampleList.append(sample)
-        labelListSample = ttk.Label(main, text=sampleName)
-        yAdd += 20
-        labelListSample.place(x=10, y=yAdd)
-        sampleUniq.add(sampleName)
-    print(minion.get())
-    fastq1.set("<empty-mandatory>")
-    fq1.config(background="gray", foreground="black")
-    fastq2.set("<empty>")
-    fq2.config(background="yellow", foreground="black")
-
-#######################################################################################################################'''
 def file_save():
     nameNewCsv = fd.asksaveasfile(mode='w', defaultextension=".csv")
     text2save="Sample Name, ACC. NUMBER, Reads, ref_len, cov, %cov, depth (median), GENUS, GROUP, SPECIES, GENOTYPE, HOST\n"
@@ -580,13 +478,13 @@ def fasta_save():
                   ac=lane.rstrip().split(">")[1]
                   fastaDico[ac] = ""
               else:
-                  fastaDico[ac]+=lane  #.rstrip()
+                  fastaDico[ac]+=lane
             fasta.close()
         except:
             pass
         headerDico={}
         try:
-            fichier = open(pathData + "/USERDATA/" + projectSelected + "/" + s[0] + "/species.csv", "r")    # if error during mapping file will not existe
+            fichier = open(pathData + "/USERDATA/" + projectSelected + "/" + s[0] + "/species.csv", "r")    # if error during mapping file will not exist
             for lane in fichier:
               try:
                 ac=lane.split(",")[1].split(" ")[1]
@@ -681,7 +579,7 @@ def dataA():
     text05Label = ttk.Label(main, text=projectSelected, foreground="darkorange1")
     text05Label.place(x=510, y=5)  #
     text0Label.place(x=350, y=5)  #
-    # file name in a list, then read once all the file to make a set of virus name in all the project # ? devide by genus
+    # file name in a list, then read once all the file to make a set of virus name in all the project
     # then reread all the file to make a dictionary where all key are sampleID and values are
     # an other dictionary with keys as virusNames and values as nb of reads
 
@@ -698,7 +596,7 @@ def dataA():
         main,
         text=str(sample),
         variable=dicoSampleVar[sample],
-        command=testCheck                                        # useless
+        command=testCheck
         )
         print(str(sample))
 
@@ -723,7 +621,7 @@ def grid():
 
     for sample in dicoSampleVar:
         if dicoSampleVar[sample].get() == 0:
-            fileList0.remove(pathData + "/USERDATA/" + projectSelected +"/" + sample + "/species.csv")
+            fileList0.remove(pathData + "/USERDATA/" + projectSelected + "/" + sample + "/species.csv")
 
     sampleDico = {}
 
@@ -747,7 +645,7 @@ def grid():
           fileList.append(file)
         f.close()
 
-    # les fichiers vide sont exclue de la liste des samples On peut les inclures faut récuperer le nom et mettre none partour
+    # empty files are excluded from the list of samples We can include them must retrieve the name and put none everywhere
 
 
     if fileList==[]:
@@ -760,7 +658,7 @@ def grid():
     # virusNameSet.remove('Virus')
 
       fig = make_subplots(len(genusNameList), 1)  # make one subplot for each genus
-      n = 0  # counter n-ème subplot
+      n = 0  # counter n-eme subplot
 
       clb = {}  # dictionary for colorbar gestion
       #get nb virus by genus in
@@ -775,7 +673,7 @@ def grid():
                     virusNameSet.add(line.split(",")[9])
             f.close()
         virusNameList = list(virusNameSet)
-        listLenVirusByGenus.append(len(virusNameList))  #ton get the max number of virus in a grid for later set the height of the graph
+        listLenVirusByGenus.append(len(virusNameList))  #to get the max number of virus in a grid for later set the height of the graph
         for file in fileList:
             virusNameDico = {}
 
@@ -797,7 +695,7 @@ def grid():
             for line in f:
                 if line.split(",")[9] in sampleDico[sampleName]:
                     sampleDico[sampleName][line.split(",")[9]] += int(
-                        line.split(",")[5].split(".")[0])  # attention arrondir
+                        line.split(",")[5].split(".")[0])
             f.close()
 
 
@@ -808,7 +706,7 @@ def grid():
                 if sampleDico[sample][virus] > 0:
                   valueList.append(sampleDico[sample][virus])
                 else:
-                  valueList.append("none")                              # none à la place de 0 et dans le heatmap hoverongaps = False pour pas avoir devaleur par default 
+                  valueList.append("none")                              # 0-> none in heatmap hoverongaps = False for no defaults values
             data.append(valueList)
         print(data)
 
@@ -847,11 +745,9 @@ def grid():
 
       fig.update_traces(showscale=False)
       fig.write_html(pathData + "/USERDATA/" + projectSelected +"/file.html")
-      # fig.update_xaxes(side="top")
       new = 2  # open in a new tab, if possible
       url=pathData + "/USERDATA/" + projectSelected +"/file.html"
       webbrowser.open(url, new=new)
-      #fig.show()
 
 
 def default():
@@ -869,7 +765,7 @@ def default():
 
     text3Label.place(x=10, y=45)          # Add a sample
 
-    cb1 = ttk.Combobox(main, values=projectList)#, width=7)
+    cb1 = ttk.Combobox(main, values=projectList)
     cb1.place(x=215, y=45)
 
     projectSelected = cb1.get().split("'")[-1]
@@ -903,7 +799,7 @@ def analyse_batch():
     try:
       projectSelected = cb1.get()
     except:
-      pass  #si pas sur une fenêtre ou il y ale combobox
+      pass  #if not combobox window
     # test if project exist otherwise mk directory
     if projectSelected == "":
         projectSelected="default"
@@ -984,12 +880,12 @@ def analyse_batch():
     text05Label = ttk.Label(main, text=projectSelected, foreground="darkorange1")
     text1Label = ttk.Label(main, text="Select samples to add:")
     text2Label = ttk.Label(main, text="Added sample: ")
-    text05Label.place(x=510, y=5)  #
-    text0Label.place(x=350, y=5)  #
+    text05Label.place(x=510, y=5)
+    text0Label.place(x=350, y=5)
     text1Label.place(x=10, y=45)         # Add a sample
-    open_button.place(x=10, y=70)       #
-    run_button.place(x=10, y=195)        #
-    text2Label.place(x=10, y=240)        #
+    open_button.place(x=10, y=70)
+    run_button.place(x=10, y=195)
+    text2Label.place(x=10, y=240)
     minion_check.place(x=10, y=110)       # Oxford Nanopore
     illuminaSE_check.place(x=10, y=130)
     illuminaPE_check.place(x=10, y=150)
