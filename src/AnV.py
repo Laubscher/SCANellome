@@ -23,9 +23,9 @@ import glob
 import pysam
 
 # The software window
-main = ThemedTk(theme="ubuntu", background=True, className="SCANellome v. 1.0.0")
+main = ThemedTk(theme="ubuntu", background=True, className="SCANellome v. 1.0.1")
 
-main.title('                                                                    SCANellome                                                                v. 1.0.0')
+main.title('                                                                    SCANellome                                                                v. 1.0.1')
 main.geometry("800x500")
 
 global pb
@@ -379,17 +379,22 @@ def select_file_batch():
 
     filetypes = (
         ('Fastq files', '*.fastq'),
+        ('Gzipped fastq', '*.fastq.gz'),
         ('All files', '*.*')
     )
     filenames = fd.askopenfilenames(
         title='select fastq',
         initialdir=pathLastDir,
         filetypes=filetypes)
-
+    print(filenames)
     for path in filenames:
         fastq1Path=str(path)
         if fastq1Path.rstrip().split(".")[-1] == "fastq":
+
             pass
+        elif fastq1Path.rstrip().split(".fastq.")[-1] == "gz":
+            pass
+
         else:
             pass
         add_sample_batch(fastq1Path)
@@ -406,13 +411,29 @@ def add_sample_batch(fastq1Path):
     isSample = True
     if illuminaPE.get() == 1:
         if fastq1Path.split("_R1_001")[-1] != ".fastq":
-          isSample=False
+          if fastq1Path.split("_R1_001.fastq")[-1] != ".gz":
+            isSample=False
+          else:
+            sampleName = fastq1Path.split("/")[-1].split("_R1_001.fastq")[0]
         else:
-          fastq2Path = fastq1Path.split("_R1_001.fastq")[0] + "_R2_001.fastq"
           sampleName = fastq1Path.split("/")[-1].split("_R1_001.fastq")[0]
+        if fastq1Path.split("_R1_001")[-1] == ".fastq":
+          fastq2Path = fastq1Path.split("_R1_001.fastq")[0] + "_R2_001.fastq"
+        if fastq1Path.split("_R1_001.fastq")[-1] == ".gz":
+            fastq2Path = fastq1Path.split("_R1_001.fastq")[0] + "_R2_001.fastq.gz"
+
     else :
-        fastq2Path = "<empty>"
-        sampleName = fastq1Path.split("/")[-1].split(".fastq")[0]
+      fastq2Path = "<empty>"
+      if fastq1Path.split(".")[-1] != "fastq":
+          if fastq1Path.split(".")[-1] != "gz":
+              isSample = False
+          else:
+              sampleName = fastq1Path.split("/")[-1].split(".fastq")[0]
+
+      else:
+          sampleName = fastq1Path.split("/")[-1].split(".fastq")[0]
+
+
     if isSample:
         suffix = fastq1Path.split(".")[-1]
     # check if fastq
@@ -435,7 +456,18 @@ def add_sample_batch(fastq1Path):
 
         elif suffix != "fastq":
           print("Sample suffix is not fastq!!")
-          tk.messagebox.showinfo("Sorry can't add your sample..", '\n"' + suffix + '"\n\nThe file type is not fastq!')
+          if suffix == "gz":
+              os.mkdir(pathData + "/USERDATA/" + projectSelected + "/" + sampleName)
+              sample = [sampleName, fastq1Path, fastq2Path, yAdd + 20, minion.get()]
+              sampleList.append(sample)
+              labelListSample = ttk.Label(main, text=sampleName)
+              yAdd += 20
+              labelListSample.place(x=10, y=yAdd)
+              sampleUniq.add(sampleName)
+
+          else:
+
+            tk.messagebox.showinfo("Sorry can't add your sample..", '\n"' + suffix + '"\n\nThe file type is not fastq!')
 
         else:
           os.mkdir(pathData + "/USERDATA/" + projectSelected + "/" + sampleName)
@@ -747,7 +779,8 @@ def grid():
       fig.write_html(pathData + "/USERDATA/" + projectSelected +"/file.html")
       new = 2  # open in a new tab, if possible
       url=pathData + "/USERDATA/" + projectSelected +"/file.html"
-      webbrowser.open(url, new=new)
+      webbrowser.get().open("file://"+url,new=new)
+      #webbrowser.open(url, new=new)
 
 
 def default():
