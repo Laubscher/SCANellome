@@ -11,6 +11,10 @@ Usage
 To use SCANellome, first create or select a project. This will allow you to organize your data and analysis results in a convenient and structured manner. Once you have created or selected a project, you can import your FASTQ files from your computer.
 Once you have configured the analysis parameters, click the "Run" button to begin the analysis.
 
+Version
+
+Version : 1.0.1
+
 Author
 
 SCANellome was created by Florian Laubscher. If you have any questions or feedback, you can contact the author at florian.laubscher@hcuge.ch
