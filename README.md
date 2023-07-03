@@ -1,6 +1,6 @@
 SCANellome
 
-SCANellome is a software application for macOS that allows users to perform anellome analysis of biological sequencing data in the FASTQ file format.  The software is designed to be user-friendly and provides a simple interface for analyzing anellome.
+SCANellome (version. 1.0.1) is a software application for macOS that allows users to perform anellome analysis of biological sequencing data in the FASTQ file format.  The software is designed to be user-friendly and provides a simple interface for analyzing anellome.
 
 Installation
 
@@ -10,6 +10,10 @@ Usage
 
 To use SCANellome, first create or select a project. This will allow you to organize your data and analysis results in a convenient and structured manner. Once you have created or selected a project, you can import your FASTQ files from your computer.
 Once you have configured the analysis parameters, click the "Run" button to begin the analysis.
+
+Version
+
+Version : 1.0.1
 
 Author
 
