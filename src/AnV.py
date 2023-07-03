@@ -378,15 +378,15 @@ def select_file_batch():
     global pathLastDir
 
     filetypes = (
-        ('Fastq files', '*.fastq'),
         ('Gzipped fastq', '*.fastq.gz'),
+        ('Fastq files', '*.fastq'),
         ('All files', '*.*')
     )
     filenames = fd.askopenfilenames(
         title='select fastq',
         initialdir=pathLastDir,
         filetypes=filetypes)
-    print(filenames)
+
     for path in filenames:
         fastq1Path=str(path)
         if fastq1Path.rstrip().split(".")[-1] == "fastq":
