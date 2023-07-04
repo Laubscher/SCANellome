@@ -5,7 +5,7 @@ SCANellome is a software application for Linux and macOS that allows users to pe
 # Installation
 
 To install SCANellome on linux, simply download the executable file from https://laubscher.github.io/Anelloviruses/SCANellome .  
-In the *Permisions* tab of the downloaded file check the box allow executing file as program.
+In the *Permisions* tab of the downloaded file check the box : *allow executing file as program*.
 
 # Usage
 
