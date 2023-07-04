@@ -21,6 +21,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import glob
 import pysam
+#from tkhtmlview import HTMLLabel
 
 # The software window
 main = ThemedTk(theme="ubuntu", background=True, className="SCANellome v. 1.0.1")
@@ -494,6 +495,21 @@ def file_save():
     nameNewCsv.write(text2save)
     nameNewCsv.close
 
+def html_save():
+    nameNewHtml = fd.asksaveasfile(mode='w', defaultextension=".html")
+    text2save=""
+    fichier = open(pathData + "/USERDATA/" + projectSelected + "/" + "/file.html", "r")   
+    for lane in fichier.read():
+              text2save += lane
+    fichier.close()
+
+    nameNewHtml.write(text2save)
+    nameNewHtml.close()
+
+
+
+
+
 def fasta_save():
 
     nameNewFasta = fd.asksaveasfile(mode='w', defaultextension=".FASTA")
@@ -779,8 +795,22 @@ def grid():
       fig.write_html(pathData + "/USERDATA/" + projectSelected +"/file.html")
       new = 2  # open in a new tab, if possible
       url=pathData + "/USERDATA/" + projectSelected +"/file.html"
-      webbrowser.get().open("file://"+url,new=new)
-      #webbrowser.open(url, new=new)
+     
+      webbrowser.get().open("file:"+url,new=new)
+
+      save_button3 = ttk.Button(
+        main,
+        text='Save HTML',
+        command=html_save
+      )
+      save_button3.place(x=300, y=60)
+
+
+      #my_label = HTMLLabel(main, html="<a href="+ url + ">click here if browser does not open</a>",state="normal", font=("Calibri", 3))
+      #my_label.place(x=500, y=60)
+      #fig.show()
+
+
 
 
 def default():
