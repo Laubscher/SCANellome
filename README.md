@@ -4,7 +4,8 @@ SCANellome (version. 1.0.1) is a software application for macOS that allows user
 
 Installation
 
-To install SCANellome on macOS, simply download the executable file from the author's website or other trusted sources.
+To install SCANellome on macOS, simply download the executable file from the author's website or other trusted sources.  
+In the *Permisions* tab of the downloaded file check the box : *allow executing file as program*.
 
 Usage
 
