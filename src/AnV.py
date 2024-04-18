@@ -24,9 +24,9 @@ import pysam
 #from tkhtmlview import HTMLLabel
 
 # The software window
-main = ThemedTk(theme="ubuntu", background=True, className="SCANellome v. 1.0.1")
+main = ThemedTk(theme="ubuntu", background=True, className="SCANellome v. 1.0.2")
 
-main.title('                                                                    SCANellome                                                                v. 1.0.1')
+main.title('                                                                    SCANellome                                                                v. 1.0.2')
 main.geometry("800x500")
 
 global pb
@@ -108,9 +108,9 @@ def start():   # start is a function that check or make the file structure for t
   #make the fasta db from module Dicodb
   #####################################
 
-  if not os.path.exists(pathData + "/DATABASE"):
+  if not os.path.exists(pathData + "/DATABASE/2024.1.fasta"):
     os.mkdir(pathData + "/DATABASE")
-    fasta=open(pathData + "/DATABASE/Anello.fasta", "w")
+    fasta=open(pathData + "/DATABASE/2024.1.fasta", "w")
     for entry in Dicodb.db:
       if entry != "none":
         fasta.write(">"+entry+"\n")
@@ -148,7 +148,7 @@ def run():        #start the run -> mapping + analyse of all sample in the sampl
           else:
               type="Single"
               print("single")
-          mapping(s[1], pathData + "/DATABASE/Anello.fasta", s[0], type, s[2])
+          mapping(s[1], pathData + "/DATABASE/2024.1.fasta", s[0], type, s[2])
 
         except:
           log.write("Error during mapping.. sample:" + str(s[0]) + "\n files may be corrupted!" + "\n")
