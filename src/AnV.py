@@ -108,8 +108,9 @@ def start():   # start is a function that check or make the file structure for t
   #make the fasta db from module Dicodb
   #####################################
 
-  if not os.path.exists(pathData + "/DATABASE/2024.1.fasta"):
+  if not os.path.exists(pathData + "/DATABASE"):
     os.mkdir(pathData + "/DATABASE")
+  if not os.path.exists(pathData + "/DATABASE/2024.1.fasta"):
     fasta=open(pathData + "/DATABASE/2024.1.fasta", "w")
     for entry in Dicodb.db:
       if entry != "none":
