@@ -15,8 +15,10 @@ Once you have configured the analysis parameters, click the "Run" button to begi
 # Author
 
 SCANellome was created by Florian Laubscher. If you have any questions or feedback, you can contact the author at florian.laubscher@hcuge.ch
+
 If you use SCANellome in your work, please cite:
-Laubscher F, Kaiser L, Cordey S. SCANellome: Analysis of the Genomic Diversity of Human and Non-Human Primate Anelloviruses from Metagenomics Data. Viruses. 2023 Jul 19;15(7):1575. doi: 10.3390/v15071575
+>Laubscher, F., Kaiser, L., & Cordey, S. (2023). SCANellome: Analysis of the Genomic Diversity of Human and Non-Human Primate Anelloviruses from Metagenomics Data.
+><br/>*Viruses*, **15**(7), 1575. [doi: 10.3390/v15071575][doi]
 
 # License
 
@@ -24,4 +26,6 @@ SCANellome is distributed under the GNU GENERAL PUBLIC LICENSE Version 3. See th
 
 # Disclaimer
 
-SCANellome is provided "as is" without warranty of any kind. 
+SCANellome is provided "as is" without warranty of any kind.
+
+[doi]: https://doi.org/10.3390/v15071575
