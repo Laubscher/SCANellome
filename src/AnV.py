@@ -21,13 +21,61 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import glob
 import pysam
+from PIL import ImageTk, Image
+from tkinter import Frame
+from tkinter import BOTH
+from tkinter import Scrollbar
+from tkinter import VERTICAL
+from tkinter import RIGHT
+from tkinter import Y
+from tkinter import Canvas
 #from tkhtmlview import HTMLLabel
 
-# The software window
-main = ThemedTk(theme="ubuntu", background=True, className="SCANellome v. 1.0.2")
+class ScrollableFrame:
+    def __init__ (self,master,width,height,mousescroll=0):
+        self.mousescroll = mousescroll
+        self.master = master
+        self.height = height
+        self.width = width
+        self.main_frame = Frame(self.master)
+        self.main_frame.pack(fill=BOTH,expand=1)
 
-main.title('                                                                    SCANellome                                                                v. 1.0.2')
-main.geometry("800x500")
+        self.scrollbar = Scrollbar(self.main_frame, orient=VERTICAL)
+        self.scrollbar.pack(side=RIGHT,fill=Y)
+
+        self.canvas = Canvas(self.main_frame,yscrollcommand=self.scrollbar.set)
+        self.canvas.pack(expand=True,fill=BOTH)
+
+        self.scrollbar.config(command=self.canvas.yview)
+
+        self.canvas.bind('<Configure>', lambda e: self.canvas.configure(scrollregion = self.canvas.bbox("all")))
+
+        self.frame = Frame(self.canvas,width=self.width,height=self.height)
+        self.frame.pack(expand=True,fill=BOTH)
+        self.canvas.create_window((0,0), window=self.frame, anchor="nw")
+
+        self.frame.bind("<Enter>", self.entered)
+        self.frame.bind("<Leave>", self.left)
+
+    def _on_mouse_wheel(self,event):
+        self.canvas.yview_scroll(-1 * int((event.delta / 120)), "units")
+
+    def entered(self,event):
+        if self.mousescroll:
+            self.canvas.bind_all("<MouseWheel>", self._on_mouse_wheel)
+        
+    def left(self,event):
+        if self.mousescroll:
+            self.canvas.unbind_all("<MouseWheel>")
+
+
+# The software window
+main1 = ThemedTk(theme="ubuntu", background=True, className="SCANellome v. 2.0.0")
+main1.title('                                                                    SCANellome                                                                         v. 2.0.0')
+main1.geometry("4000x1000")
+obj = ScrollableFrame(main1,height=11300,width=4000 )
+main = obj.frame
+
 
 global pb
 
@@ -65,9 +113,35 @@ def start():   # start is a function that check or make the file structure for t
 
   try:
       icon = tk.PhotoImage(file = pathData + "/IMG/blue.png")
-      main.iconphoto(False, icon)
+      main1.iconphoto(False, icon)
   except:
       pass
+
+  #####################################
+  #               tree                #
+  #####################################
+
+  if not os.path.exists(pathData + "/IMG/TREE/"):
+    os.mkdir(pathData + "/IMG/TREE")
+    image = open(pathData + "/IMG/TREE/GENcol.png", 'wb')
+    image.write(base64.b64decode((img.gen)))
+    image.close()
+
+    image = open(pathData + "/IMG/TREE/ALPHA.png", 'wb')
+    image.write(base64.b64decode((img.alpha)))
+    image.close()
+
+    image = open(pathData + "/IMG/TREE/BETA.png", 'wb')
+    image.write(base64.b64decode((img.beta)))
+    image.close()
+
+    image = open(pathData + "/IMG/TREE/GAMMA.png", 'wb')
+    image.write(base64.b64decode((img.gamma)))
+    image.close()
+
+
+
+
 
   #####################################
   #               log                 #
@@ -840,7 +914,63 @@ def default():
         text='⏎',
         command=analyse_batch
     )
+
     enter_button.place(x=380, y=40)           #analyze
+    tree=Image.open(pathData + "/IMG/TREE/GENcol.png")
+    img = ImageTk.PhotoImage(tree)
+    label = ttk.Label(main, image=img)
+    label.image = img
+    label.place(x=1, y=70)
+
+
+#button a placer sur l'image pour afficher les sous-arbres
+
+    beta_button = ttk.Button(   
+        main,
+        text='Betatorquevirus',
+        command=placeBeta
+    )
+
+    beta_button.place(x=485, y=275)           
+
+
+    alpha_button = ttk.Button(   
+        main,
+        text='Alphatorquevirus',
+        command=placeAlpha
+    )
+
+    alpha_button.place(x=485, y=890)    
+
+    gamma_button = ttk.Button(   
+        main,
+        text='Gammatorquevirus',
+        command=placeGamma
+    )
+
+    gamma_button.place(x=485, y=800)    
+
+def placeAlpha():
+    alpha=Image.open(pathData + "/IMG/TREE/ALPHA.png")
+    imgAlpha = ImageTk.PhotoImage(alpha)
+    labelA = ttk.Label(main, image=imgAlpha)
+    labelA.image = imgAlpha
+    labelA.place(x=700, y=70)
+
+def placeBeta():
+    beta=Image.open(pathData + "/IMG/TREE/BETA.png")
+    imgBeta = ImageTk.PhotoImage(beta)
+    labelB = ttk.Label(main, image=imgBeta)
+    labelB.image = imgBeta
+    labelB.place(x=700, y=70)
+
+def placeGamma():
+    gamma=Image.open(pathData + "/IMG/TREE/GAMMA.png")
+    imgGamma = ImageTk.PhotoImage(gamma)
+    labelG = ttk.Label(main, image=imgGamma)
+    labelG.image = imgGamma
+    labelG.place(x=700, y=70)
+
 
 def analyse_batch():
 
