@@ -920,7 +920,13 @@ def default():
     img = ImageTk.PhotoImage(tree)
     label = ttk.Label(main, image=img)
     label.image = img
-    label.place(x=1, y=70)
+    label.place(x=1, y=75)
+
+    text4Label = ttk.Label(main, text="Tree of Primate Anelloviruses: \n\nClick on Alpha- Beta- or Gamma- \ntorquevirus to display sub-trees.\n\nNon-human hosts are indicated\nin parenthesis\n\nNon-ICTV approved (new) species\nbranches are colored in red.")
+
+    text4Label.place(x=5, y=80)          # Add a legend
+
+
 
 
 #button a placer sur l'image pour afficher les sous-arbres
@@ -931,7 +937,7 @@ def default():
         command=placeBeta
     )
 
-    beta_button.place(x=485, y=275)           
+    beta_button.place(x=485, y=280)           
 
 
     alpha_button = ttk.Button(   
@@ -940,7 +946,7 @@ def default():
         command=placeAlpha
     )
 
-    alpha_button.place(x=485, y=890)    
+    alpha_button.place(x=485, y=895)    
 
     gamma_button = ttk.Button(   
         main,
@@ -948,28 +954,28 @@ def default():
         command=placeGamma
     )
 
-    gamma_button.place(x=485, y=800)    
+    gamma_button.place(x=485, y=805)    
 
 def placeAlpha():
     alpha=Image.open(pathData + "/IMG/TREE/ALPHA.png")
     imgAlpha = ImageTk.PhotoImage(alpha)
     labelA = ttk.Label(main, image=imgAlpha)
     labelA.image = imgAlpha
-    labelA.place(x=700, y=70)
+    labelA.place(x=700, y=75)
 
 def placeBeta():
     beta=Image.open(pathData + "/IMG/TREE/BETA.png")
     imgBeta = ImageTk.PhotoImage(beta)
     labelB = ttk.Label(main, image=imgBeta)
     labelB.image = imgBeta
-    labelB.place(x=700, y=70)
+    labelB.place(x=700, y=75)
 
 def placeGamma():
     gamma=Image.open(pathData + "/IMG/TREE/GAMMA.png")
     imgGamma = ImageTk.PhotoImage(gamma)
     labelG = ttk.Label(main, image=imgGamma)
     labelG.image = imgGamma
-    labelG.place(x=700, y=70)
+    labelG.place(x=700, y=75)
 
 
 def analyse_batch():
