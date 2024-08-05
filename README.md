@@ -14,7 +14,7 @@ Once you have configured the analysis parameters, click the "Run" button to begi
 
 # Version
 
-Version : 1.0.2
+Version : 2.0.0
 
 # Author
 
