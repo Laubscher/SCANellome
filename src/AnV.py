@@ -70,8 +70,8 @@ class ScrollableFrame:
 
 
 # The software window
-main1 = ThemedTk(theme="ubuntu", background=True, className="SCANellome v. 2.0.0")
-main1.title('                                                                    SCANellome                                                                         v. 2.0.0')
+main1 = ThemedTk(theme="ubuntu", background=True, className="SCANellome v. 2.1.0")
+main1.title('                                                                    SCANellome                                                                         v. 2.1.0')
 main1.geometry("4000x1000")
 obj = ScrollableFrame(main1,height=11300,width=4000 )
 main = obj.frame
@@ -184,8 +184,8 @@ def start():   # start is a function that check or make the file structure for t
 
   if not os.path.exists(pathData + "/DATABASE"):
     os.mkdir(pathData + "/DATABASE")
-  if not os.path.exists(pathData + "/DATABASE/2024.2.fasta"):
-    fasta=open(pathData + "/DATABASE/2024.2.fasta", "w")
+  if not os.path.exists(pathData + "/DATABASE/2025.2.fasta"):
+    fasta=open(pathData + "/DATABASE/2025.2.fasta", "w")
     for entry in Dicodb.db:
       if entry != "none":
         fasta.write(">"+entry+"\n")
@@ -223,7 +223,7 @@ def run():        #start the run -> mapping + analyse of all sample in the sampl
           else:
               type="Single"
               print("single")
-          mapping(s[1], pathData + "/DATABASE/2024.2.fasta", s[0], type, s[2])
+          mapping(s[1], pathData + "/DATABASE/2025.2.fasta", s[0], type, s[2])
 
         except:
           log.write("Error during mapping.. sample:" + str(s[0]) + "\n files may be corrupted!" + "\n")
