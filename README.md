@@ -7,6 +7,11 @@ SCANellome is a software application for Linux and macOS that allows users to pe
 To install SCANellome on linux, simply download the executable file from https://laubscher.github.io/Anelloviruses/SCANellome .  
 In the *Permisions* tab of the downloaded file check the box : *allow executing file as program*.
 
+Generate axecutable from source code with pyinstaller: 
+> pyinstaller --onefile --hidden-import=PIL._tkinter_finder SCANellome-2.x.x.py
+
+ With files Dicodb.py and img.py in the same folder.
+
 # Usage
 
 To use SCANellome, first create or select a project. This will allow you to organize your data and analysis results in a convenient and structured manner. Once you have created or selected a project, you can import your FASTQ files from your computer.
@@ -29,3 +34,6 @@ SCANellome is distributed under the GNU GENERAL PUBLIC LICENSE Version 3. See th
 SCANellome is provided "as is" without warranty of any kind.
 
 [doi]: https://doi.org/10.3390/v15071575
+
+
+
